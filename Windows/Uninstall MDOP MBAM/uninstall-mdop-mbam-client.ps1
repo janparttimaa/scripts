@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Uninstall MDOP MBAM client from Windows-client
+    Uninstall MDOP MBAM client from Windows-devices
 
 .DESCRIPTION
-    This PowerShell-script will uninstall MDOP MBAM client from Windows-client.
+    This PowerShell-script will uninstall MDOP MBAM client from Windows-devices.
 
 .VERSION
     1.0
@@ -23,12 +23,12 @@
 
 .EXAMPLE
     Run following command with admin rights:
-    powershell.exe -ExecutionPolicy Bypass -File .\uninstall-mdop-mbam.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\uninstall-mdop-mbam-client.ps1
 
     This example is how to run this script running Windows PowerShell. This is also the command that needs to be use when deploying it via Microsoft Configuration Manager or Microsoft Intune.
 #>
 
-# Uninstall the "MDOP MBAM" MSI package if it's installed
+# Uninstall the "MDOP MBAM" client MSI package if it's installed
 Write-Host "Checking if the MDOP MBAM client is installed."
 
 $msiProduct = Get-WmiObject Win32_Product | Where-Object { $_.Name -like "MDOP MBAM" -and $_.Vendor -like "Microsoft Corporation" }
