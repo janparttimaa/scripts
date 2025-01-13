@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Uninstall MDOP MBAM client from Windows-devices
+    Uninstall MDOP MBAM client from Windows-devices.
 
 .DESCRIPTION
     This PowerShell-script will uninstall MDOP MBAM client from Windows-devices.
