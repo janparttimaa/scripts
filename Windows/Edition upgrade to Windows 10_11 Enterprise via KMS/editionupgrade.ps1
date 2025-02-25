@@ -27,4 +27,5 @@ if ($localNetwork) {
     }
 } else {
     Write-Output "Device is not on the local network. KMS key installation aborted."
+    [System.Environment]::Exit(1)
 }
