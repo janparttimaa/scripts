@@ -9,7 +9,7 @@ function Get-WindowsEdition {
 }
 
 # Check if the device is on the local network
-$localNetwork = Test-Connection -ComputerName "fihelsms02.fi.kworld.kpmg.com" -Count 1 -Quiet
+$localNetwork = Test-Connection -ComputerName "internalserver.example.com" -Count 1 -Quiet
 
 if ($localNetwork) {
     # Get the current Windows edition
