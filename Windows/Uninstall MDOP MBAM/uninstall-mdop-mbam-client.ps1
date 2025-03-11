@@ -39,5 +39,5 @@ $msiProductIdentifyingNumber = $msiProduct.IdentifyingNumber
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/x $msiProductIdentifyingNumber /Q" -Wait
 }
 else {
-Write-Host "MDOP MBAM client not installed."
+Write-Host "MDOP MBAM client not installed. Closing script..."
 }
