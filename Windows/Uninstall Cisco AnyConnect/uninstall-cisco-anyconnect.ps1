@@ -41,5 +41,5 @@ $msiProductIdentifyingNumber = $msiProduct.IdentifyingNumber
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/x $msiProductIdentifyingNumber /Q" -Wait
 }
 else {
-Write-Host "Cisco AnyConnect not installed."
+Write-Host "Cisco AnyConnect not installed. Closing script..."
 }
