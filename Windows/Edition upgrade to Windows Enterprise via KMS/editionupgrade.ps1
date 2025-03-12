@@ -1,6 +1,6 @@
 ﻿<#﻿
 .SYNOPSIS
-    Edition Upgrade to Windows 10/11 Enterprise via KMS
+    Edition Upgrade to Windows 10/11 Enterprise via KMS.
 
 .DESCRIPTION
     If you came across situation where your KMS-activated Windows 10/11 Enterprise have been somehow downgraded to e.g. Windows 10/11 Pro, this script is for you! 
