@@ -54,16 +54,16 @@ if ($localNetwork) {
     if ($windowsEdition -ne 4) {
         # Install the KMS key silently
         cscript C:\Windows\System32\slmgr.vbs -ipk $kmsKey
-        Write-Host "KMS key installed successfully. Closing script..."
+        Write-Output "KMS key installed successfully. Closing script..."
         # Exit code for SCCM and Intune
         [System.Environment]::Exit(0)
     } else {
-        Write-Host "Windows is running Enterprise edition. KMS key installation skipped. Closing script..."
+        Write-Output "Windows is running Enterprise edition. KMS key installation skipped. Closing script..."
         # Exit code for SCCM and Intune
         [System.Environment]::Exit(0)
     }
 } else {
-    Write-Host "Device is not on the local network. KMS key installation aborted. Closing script..."
+    Write-Output "Device is not on the local network. KMS key installation aborted. Closing script..."
     # Exit code for SCCM and Intune
     [System.Environment]::Exit(1)
 }
