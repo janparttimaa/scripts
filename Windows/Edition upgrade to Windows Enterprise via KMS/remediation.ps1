@@ -36,7 +36,7 @@
 $kmsKey = "NPPR9-FWDCX-D2C8J-H872K-2YT43"
 
 # Define name of the server (e.g. SCCM-server) that can be pinged only from local network
-$internalserver = "internalserver"
+$internalserver = "internalserver.example.com"
 
 # Check if the device is on the local network
 $localNetwork = Test-Connection -ComputerName "$internalserver" -Count 1 -Quiet
