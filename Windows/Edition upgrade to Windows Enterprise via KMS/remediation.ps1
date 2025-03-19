@@ -25,7 +25,7 @@
     20250312 - Initial release
 
 .EXAMPLE
-    powershell.exe -ExecutionPolicy Bypass -File .\editionupgrade.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\remediation.ps1
     This example is how to run this script running Windows PowerShell. Run this command with your admin rights.
     This is also the command that needs to be use when deploying it via Microsoft Configuration Manager or via Intune.
 #>
