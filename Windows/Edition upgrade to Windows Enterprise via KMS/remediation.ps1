@@ -39,7 +39,7 @@ $kmsKey = "NPPR9-FWDCX-D2C8J-H872K-2YT43"
 $internalserver = "internalserver"
 
 # Check if the device is on the local network
-$localNetwork = Test-Connection -ComputerName "$internalserver.example.com" -Count 1 -Quiet
+$localNetwork = Test-Connection -ComputerName "$internalserver" -Count 1 -Quiet
 
 if ($localNetwork) {
     # Install the KMS key silently
