@@ -40,10 +40,16 @@ $windowsEdition = Get-WindowsEdition
 # Check if the Windows edition is Enterprise (4 is the SKU for Enterprise)
 if ($windowsEdition -eq 4) {
     Write-Output "Windows is running Enterprise edition."
-    # Exit code for Intune and Configuration Manager (0 indicates detection success)
-    [System.Environment]::Exit(0)
+    # Exit code for Intune 0 indicates detection success)
+    #exit 0
+    # "Exit code" for Configuration Manager ("Compliant" indicates detection success)
+    $Compliance = "Compliant"
+    $Compliance
 } else {
     Write-Output "Windows is not running Enterprise edition."
     # Exit code for Intune and Configuration Manager (1 indicates detection failure)
-    [System.Environment]::Exit(1)
+    #exit 1
+    # "Exit code" for Configuration Manager ("Non-Compliant" indicates detection failure)
+    $Compliance = "Non-Compliant"
+    $Compliance
 }
