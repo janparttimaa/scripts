@@ -9,7 +9,7 @@
     Platform: Windows 10 and later.
 
 .VERSION
-    20250311
+    20250312
 
 .AUTHOR
     Jan Parttimaa (https://github.com/janparttimaa)
