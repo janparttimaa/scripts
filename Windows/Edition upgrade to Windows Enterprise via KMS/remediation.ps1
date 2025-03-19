@@ -43,6 +43,7 @@ $localNetwork = Test-Connection -ComputerName "$internalserver" -Count 1 -Quiet
 
 if ($localNetwork) {
     # Install the KMS key silently
+    Write-Output "Device is on the local network. Installing KMS key..."
     cscript C:\Windows\System32\slmgr.vbs -ipk $kmsKey
     Write-Output "KMS key installed successfully. Closing script..."
     # Exit code for SCCM and Intune
