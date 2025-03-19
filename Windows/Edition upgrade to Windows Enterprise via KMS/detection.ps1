@@ -1,6 +1,6 @@
 <# 
 .SYNOPSIS
-    Intune Detection Script for verifying Windows 10/11 Enterprise edition.
+    Intune & Configuration Manager Detection Script for verifying Windows 10/11 Enterprise edition.
 
 .DESCRIPTION
     This script checks if the device is running Windows 10/11 Enterprise. It is designed to be used as a detection script in Microsoft Intune.
@@ -17,6 +17,14 @@
 .LICENSE
     This script is licensed under the MIT License.
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
+    
+.RELEASE NOTES
+    20250319 - Initial release
+
+.EXAMPLE
+    powershell.exe -ExecutionPolicy Bypass -File .\detection.ps1
+    This example is how to run this script running Windows PowerShell. Run this command with your admin rights.
+    This is also the command that needs to be use when deploying it via Microsoft Configuration Manager or via Intune.
 
 #>
 
