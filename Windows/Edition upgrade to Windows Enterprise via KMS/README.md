@@ -22,7 +22,3 @@ Here are the screenshots, that are helpful when deploying these to Configuration
 ![Screenshot](img/screenshot12.png)
 ![Screenshot](img/screenshot13.png)
 ![Screenshot](img/screenshot14.png)
-![Screenshot](img/screenshot15.png)
-![Screenshot](img/screenshot16.png)
-![Screenshot](img/screenshot17.png)
-![Screenshot](img/screenshot18.png)
