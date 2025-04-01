@@ -11,5 +11,8 @@ Here are the screenshots, that are helpful when deploying these to Configuration
 ![Screenshot](img/screenshot3.png)
 ![Screenshot](img/screenshot4.png)
 ![Screenshot](img/screenshot5.png)
+![Screenshot](img/screenshot6.png)
+![Screenshot](img/screenshot7.png)
+![Screenshot](img/screenshot8.png)
 
 ## Configuration Baselines
