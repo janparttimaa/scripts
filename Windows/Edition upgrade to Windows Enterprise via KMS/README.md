@@ -6,6 +6,6 @@ This script upgrade your company-managed device back to KMS-activated Windows 10
 Here are the screenshots, that are helpful when deploying these to Configuration Manager.
 
 ### Configuration Items
-![Screenshot]("img/screenshot 1.png")
+![Screenshot]("screenshot 1.png")
 
 ## Configuration Baselines
