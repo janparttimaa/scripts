@@ -2,6 +2,9 @@
 If you came across situation where your KMS-activated Windows 10/11 Enterprise have been somhow downgraded to e.g. Windows 10/11 Pro, this script is for you!
 This script upgrade your company-managed device back to KMS-activated Windows 10/11 Enterprise silently without any user interruption.
 
+> [!NOTE]  
+> Please note that before deploying the script "remediation.ps1", you need to add your local server address of your Configuration Manager (SCCM) server so effected device can ping it to make sure that effected device is in local network. This can be found from line 39. Just replace the current placeholder address to Configuration Manager (SCCM) server address.
+
 ## Screenshots for Configuration Manager deployments
 Here are the screenshots, that are helpful when deploying these to Configuration Manager.
 
