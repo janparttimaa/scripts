@@ -19,7 +19,7 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20250417 - Initial release
+    20250423 - Initial release
 
 .EXAMPLE
     Run following command with without admin rights:
@@ -39,7 +39,8 @@ Write-Host "Checking if Anaconda is installed..."
 if (Test-Path $UninstallAnaconda3) {
     Write-Host "Anaconda is installed. Uninstalling it..."
     Stop-Process -Name pythonw -Force -Verbose -ErrorAction SilentlyContinue
-    Start-Process -FilePath "$AnacondaUserProfile\Uninstall-Anaconda3.exe" -ArgumentList "/S" -Wait -Verbose
+    Stop-Process -Name python -Force -Verbose -ErrorAction SilentlyContinue
+    Start-Process -FilePath $UninstallAnaconda3 -ArgumentList "/S" -Wait -Verbose
     Start-Sleep -Seconds 60
 } else {
     Write-Host "Anaconda is not installed. Let's proceed..."
