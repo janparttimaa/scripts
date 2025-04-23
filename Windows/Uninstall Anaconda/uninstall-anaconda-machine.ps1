@@ -6,7 +6,7 @@
     This PowerShell-script will uninstall Anaconda from Windows-devices (System-context).
 
 .VERSION
-    20250417
+    20250423
 
 .AUTHOR
     Jan Parttimaa (https://github.com/janparttimaa)
