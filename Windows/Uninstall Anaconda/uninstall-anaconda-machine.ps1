@@ -39,7 +39,7 @@ Write-Host "Checking if Anaconda is installed..."
 if (Test-Path $UninstallAnaconda3) {
     Write-Host "Anaconda is installed. Uninstalling it..."
     Stop-Process -Name pythonw -Force -Verbose -ErrorAction SilentlyContinue
-    Start-Process -FilePath "$AnacondaProgramData\Uninstall-Anaconda3.exe" -ArgumentList "/S" -Wait -Verbose
+    Start-Process -FilePath $UninstallAnaconda3 -ArgumentList "/S" -Wait -Verbose
     Start-Sleep -Seconds 60
 } else {
     Write-Host "Anaconda is not installed. Let's proceed..."
