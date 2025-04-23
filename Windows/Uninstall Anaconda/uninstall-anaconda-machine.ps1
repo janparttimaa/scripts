@@ -19,7 +19,7 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20250417 - Initial release
+    20250423 - Initial release
 
 .EXAMPLE
     Run following command with with admin rights:
