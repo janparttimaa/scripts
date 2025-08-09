@@ -9,7 +9,7 @@ Before deploying this script, you need to do following tasks:
 2. Replace name of the offline installer from the line 35, where placeholder "installer.exe" is.
 3. Replace name of your company from the line 37, where placeholder "Example Company" is.
 
-## Detection Methods
+## Detection methods for deployment
 If your company name is e.g. "Example Company", detection methods would be following ones:
 
 | Registry Key | Value | Type | Data |
