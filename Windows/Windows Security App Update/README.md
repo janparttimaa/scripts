@@ -14,5 +14,5 @@ If your company name is e.g. "Example Company", detection methods would be follo
 
 | Registry Key | Value | Type | Data |
 | -------- | ------- | ------- |------- |
-| HKLM\Sofware\Example Company\Windows Security App Update | Installed | REG_SZ | Yes
-| HKLM\Sofware\Example Company\Windows Security App Update | ScriptVersion | REG_SZ | 20250809
+| HKLM\Software\Example Company\Windows Security App Update | Installed | REG_SZ | Yes
+| HKLM\Software\Example Company\Windows Security App Update | ScriptVersion | REG_SZ | 20250809
