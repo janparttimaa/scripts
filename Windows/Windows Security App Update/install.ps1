@@ -6,8 +6,10 @@
     This PowerShell-script will install Windows Security App Update using offline version of the installer.
     Offline installer can be downloaded here: https://support.microsoft.com/en-us/topic/windows-security-app-update-a6ac7d2e-b1bf-44c0-a028-41720a242da3
     Replace name of the offline installer to the line 35, where placeholdername "installer.exe" is.
+    Replace name of your company to the line 37, where placeholdername "Example Company" is.
     Installation will happens per system context.
     Platform: Windows 10 and later.
+    NOTE: You need to do some preparations before deploying this script. Please check preparation instructions from GitHub.
 
 .VERSION
     20250809
@@ -68,4 +70,5 @@ Start-Sleep -Seconds 10
 
 # Closing script
 Write-Output "All done. Closing script..."
+
 Start-Sleep -Seconds 10
