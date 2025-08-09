@@ -15,7 +15,7 @@
     20250809
 
 .AUTHOR
-    Jan Parttimaa (https://github.com/janparttimaa)
+    Jan Parttimaa (https://github.com/janparttimaa/scripts)
 
 .COPYRIGHT
     © 2025 Jan Parttimaa. All rights reserved.

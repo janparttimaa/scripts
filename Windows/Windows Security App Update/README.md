@@ -2,7 +2,9 @@
 
 ## Description 
 This PowerShell-script will install Windows Security App Update using offline version of the installer.
-This needs to be deployed as application using either Microsoft Intune or Microsoft Configuration Manager.
+This needs to be deployed as application using either Microsoft Intune or Microsoft Configuration Manager. Installation will happens per system context.
+
+**Platform:** Windows 10 and later.
 
 ## Prerequisites
 Before deploying this script, you need to do following tasks:
