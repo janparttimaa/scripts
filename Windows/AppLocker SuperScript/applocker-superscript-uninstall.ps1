@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     Removes per-user (AppData-installed) copies of Chrome, Firefox, GIMP, Git for Windows, and Refinitiv Workspace
-    across all local user profiles. Optionally stops only per-user processes, purges per-user data, cleans broken
+    across all local user profiles. This script also stops only per-user processes, purges per-user data, cleans broken
     shortcuts in per-user Desktop/Start Menu, and removes per-user uninstall registry entries.
 
 .DESCRIPTION
