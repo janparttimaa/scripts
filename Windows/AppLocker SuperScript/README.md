@@ -1,6 +1,6 @@
 # AppLocker Superscript
 
-AppLocker SuperScript removes per-user (AppData-installed) copies of followung applications across all local user profiles:
+AppLocker SuperScript removes per-user (AppData-installed) copies of following applications across all local user profiles:
 - Google Chrome
 - Mozilla Firefox
 - GIMP
