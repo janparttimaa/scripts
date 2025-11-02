@@ -28,12 +28,16 @@
 #>
 
 # Replace "Example" with your company name e.g. "Contoso"
-$Company = "Example"
+$CorporateName = "Example"
+$ApplicationName = "IT Helpdesk Remote Connection"
+$CorporateRegistryPath = "HKLM:\Software\$CorporateName"
+$AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName"
+$ScriptVersion = "20251102"
 
 # Define source and destination paths
 $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
 $SourceFolder = Join-Path $BasePath "Support Files"
-$TargetFolder = "C:\Program Files\$Company\IT Helpdesk Remote Connection"
+$TargetFolder = "C:\Program Files\$CorporateName\$ApplicationName"
 
 # Define files
 $Ps1File = Join-Path $SourceFolder "Create-RemoteAssistanceInvitation.ps1"
@@ -57,7 +61,7 @@ foreach ($file in $FilesToMove) {
 }
 
 # Create Start Menu shortcut (All Users)
-$ShortcutName = "$Company IT Helpdesk Remote Connection.lnk"
+$ShortcutName = "$CorporateName $ApplicationName.lnk"
 $StartMenuPath = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
 $ShortcutPath = Join-Path $StartMenuPath $ShortcutName
 $ShortcutTarget = Join-Path $TargetFolder "msra.bat"
@@ -72,10 +76,33 @@ $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = $ShortcutTarget
 $Shortcut.WorkingDirectory = $TargetFolder
 $Shortcut.IconLocation = "$IconPath,$IconIndex"
-$Shortcut.Description = "Launch $Company IT Helpdesk Remote Connection"
+$Shortcut.Description = "Launch $CorporateName $ApplicationName"
 $Shortcut.Save()
 
 Write-Host "Shortcut created: $ShortcutPath"
-Write-Host "Installation is now done. Closing installation script..."
+Start-Sleep -Seconds 5
+
+# Let's create registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes and close the script
+Write-Host "Creating registry key for Microsoft Intune or Microsoft Configuration Manager detection rule purposes..."
+if (-not (Test-Path -Path $CorporateRegistryPath)) {
+    New-Item -Path $CorporateRegistryPath -Force -Verbose
+}else {
+    Write-Host "Registry path '$CorporateRegistryPath' is already created. Let's continue..." 
+}
+
+if (-not (Test-Path -Path $AppicationRegistryPath)) {
+    New-Item -Path $AppicationRegistryPath -Force -Verbose
+}else {
+    Write-Host "Registry path '$AppicationRegistryPath' is already created. Let's continue..." 
+}
+
+Set-ItemProperty -Path $AppicationRegistryPath -Name "Installed" -Value "Yes" -Type "String" -Force -Verbose
+Set-ItemProperty -Path $AppicationRegistryPath -Name "ScriptVersion" -Value "$ScriptVersion" -Type "String" -Force -Verbose
+
+# Wait for moment
 Start-Sleep -Seconds 10
-exit 0
+
+# Closing script
+Write-Output "All done. Closing script..."
+
+Start-Sleep -Seconds 10
