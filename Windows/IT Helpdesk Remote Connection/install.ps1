@@ -66,7 +66,7 @@ foreach ($file in $FilesToMove) {
 $ShortcutName = "$CorporateName $ApplicationName.lnk"
 $StartMenuPath = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
 $ShortcutPath = Join-Path $StartMenuPath $ShortcutName
-$ShortcutTarget = Join-Path $TargetFolder "msra.bat"
+$ShortcutTarget = Join-Path $TargetFolder "Create-RemoteAssistanceInvitation.bat"
 
 # Icon source (Windows tree icon)
 $IconPath = "$env:SystemRoot\System32\shell32.dll"
