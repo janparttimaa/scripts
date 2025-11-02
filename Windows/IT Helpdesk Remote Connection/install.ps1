@@ -108,4 +108,3 @@ Start-Sleep -Seconds 10
 Write-Output "All done. Closing script..."
 
 Start-Sleep -Seconds 10
-exit 0
