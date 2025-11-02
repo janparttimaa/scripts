@@ -29,6 +29,8 @@
 
 # Replace "Example" with your company name e.g. "Contoso"
 $CorporateName = "Example"
+
+# Other variables
 $ApplicationName = "IT Helpdesk Remote Connection"
 $CorporateRegistryPath = "HKLM:\Software\$CorporateName"
 $AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName"
