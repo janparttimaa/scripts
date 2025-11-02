@@ -36,8 +36,9 @@
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
 param(
     # Replace "Example" with your company name e.g. "Contoso"
-    [string]$Company = "Example",
-    [string]$ProductName = "IT Helpdesk Remote Connection",
+    [string]$CorporateName = "Example",
+    [string]$ApplicationName = "IT Helpdesk Remote Connection",
+    [string]$AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName",
     [string[]]$ExpectedFiles = @("Create-RemoteAssistanceInvitation.ps1","Create-RemoteAssistanceInvitation.bat")
 )
 
@@ -54,7 +55,7 @@ if (-not (Test-Admin)) {
 
 # --- Logging ---
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-$logDir = "C:\ProgramData\$Company\$ProductName"
+$logDir = "C:\ProgramData\$CorporateName\$ApplicationName"
 
 # Ensure log directory exists
 try {
@@ -66,7 +67,7 @@ try {
     $logDir = $env:TEMP
 }
 
-$logPath = Join-Path $logDir "${Company}-Uninstall-${timestamp}.log"
+$logPath = Join-Path $logDir "${CorporateName}-Uninstall-${timestamp}.log"
 try {
     Start-Transcript -Path $logPath -Append -ErrorAction Stop | Out-Null
 } catch {
@@ -76,7 +77,7 @@ try {
 try {
     # --- Constants and paths ---
     $startMenuAllUsers = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
-    $shortcutName      = "$Company $ProductName.lnk"
+    $shortcutName      = "$CorporateName $ApplicationName.lnk"
     $shortcutPath      = Join-Path $startMenuAllUsers $shortcutName
 
     # Determine possible install locations (covering x64/x86 and hardcoded path)
@@ -85,10 +86,10 @@ try {
     $pf     = $env:ProgramFiles
 
     $candidateDirs = @(
-        "C:\Program Files\$Company\$ProductName",
-        $(if ($pf64) { Join-Path $pf64 "$Company\$ProductName" }),
-        $(if ($pf32) { Join-Path $pf32 "$Company\$ProductName" }),
-        $(if ($pf)   { Join-Path $pf   "$Company\$ProductName" })
+        "C:\Program Files\$CorporateName\$ApplicationName",
+        $(if ($pf64) { Join-Path $pf64 "$CorporateName\$ApplicationName" }),
+        $(if ($pf32) { Join-Path $pf32 "$CorporateName\$ApplicationName" }),
+        $(if ($pf)   { Join-Path $pf   "$CorporateName\$ApplicationName" })
     ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -Unique
 
     Write-Verbose "Shortcut path: $shortcutPath"
@@ -168,10 +169,16 @@ try {
         Write-Host "No matching install directory found under Program Files."
     }
 
-    Write-Host "Uninstall complete."
+    # Removing registry entries
+    Write-Host "Removing registry entries..."
+    Remove-Item -Path $ApplicationRegistryPath -Recurse -Force -Verbose
+    Write-Host "Uninstallation is now done. Closing script..."
 }
 finally {
     try { Stop-Transcript | Out-Null } catch {}
     Write-Verbose "Log written to: $logPath"
     if (Test-Path $logPath) { Write-Host "Log: $logPath" }
 }
+
+Start-Sleep 10
+exit 0
