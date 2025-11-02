@@ -27,6 +27,7 @@
 
 .RELEASENOTES
     20251102 - Initial release.
+    20251102 - Fix: $ApplicationRegistryPath parameter name; simplify registry removal (no WOW6432Node).
 
 .EXAMPLE
     powershell.exe -ExecutionPolicy Bypass -File .\uninstall.ps1
@@ -38,8 +39,11 @@ param(
     # Replace "Example" with your company name e.g. "Contoso"
     [string]$CorporateName = "Example",
     [string]$ApplicationName = "IT Helpdesk Remote Connection",
-    [string]$AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName",
-    [string[]]$ExpectedFiles = @("Create-RemoteAssistanceInvitation.ps1","Create-RemoteAssistanceInvitation.bat")
+    [string]$ApplicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName",
+    [string[]]$ExpectedFiles = @(
+        "Create-RemoteAssistanceInvitation.ps1",
+        "Create-RemoteAssistanceInvitation.bat"
+    )
 )
 
 function Test-Admin {
@@ -53,7 +57,7 @@ if (-not (Test-Admin)) {
     exit 1
 }
 
-# --- Logging ---
+# Logging
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $logDir = "C:\ProgramData\$CorporateName\$ApplicationName"
 
@@ -75,7 +79,7 @@ try {
 }
 
 try {
-    # --- Constants and paths ---
+    # Constants and paths
     $startMenuAllUsers = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
     $shortcutName      = "$CorporateName $ApplicationName.lnk"
     $shortcutPath      = Join-Path $startMenuAllUsers $shortcutName
@@ -96,7 +100,7 @@ try {
     Write-Verbose "Candidate install directories:`n - $($candidateDirs -join "`n - ")"
     Write-Verbose "Expected files to remove: $($ExpectedFiles -join ', ')"
 
-    # --- Remove Start Menu shortcut (All Users) ---
+    # Remove Start Menu shortcut (All Users)
     if (Test-Path $shortcutPath) {
         if ($PSCmdlet.ShouldProcess($shortcutPath, "Remove shortcut")) {
             try {
@@ -110,7 +114,7 @@ try {
         Write-Verbose "Shortcut not found: $shortcutPath"
     }
 
-    # --- Remove only known files, then product folder if empty ---
+    # Remove only known files, then product folder if empty
     foreach ($dir in $candidateDirs) {
         if (-not (Test-Path $dir)) { continue }
 
@@ -171,7 +175,19 @@ try {
 
     # Removing registry entries
     Write-Host "Removing registry entries..."
-    Remove-Item -Path $ApplicationRegistryPath -Recurse -Force -Verbose
+    if ($ApplicationRegistryPath -and (Test-Path -LiteralPath $ApplicationRegistryPath)) {
+        if ($PSCmdlet.ShouldProcess($ApplicationRegistryPath, "Remove registry key")) {
+            try {
+                Remove-Item -LiteralPath $ApplicationRegistryPath -Recurse -Force -ErrorAction Stop
+                Write-Host "Removed registry key: $ApplicationRegistryPath"
+            } catch {
+                Write-Warning "Failed to remove registry key '$ApplicationRegistryPath': $($_.Exception.Message)"
+            }
+        }
+    } else {
+        Write-Verbose "Registry key not found (skipped): $ApplicationRegistryPath"
+    }
+
     Write-Host "Uninstallation is now done. Closing script..."
 }
 finally {
