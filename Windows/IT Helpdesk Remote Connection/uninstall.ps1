@@ -197,4 +197,3 @@ finally {
 }
 
 Start-Sleep 10
-exit 0
