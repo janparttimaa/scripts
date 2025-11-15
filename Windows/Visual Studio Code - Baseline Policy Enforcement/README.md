@@ -1,154 +1,216 @@
-# Visual Studio Code -- Baseline Policy Enforcement
+# Visual Studio Code – Baseline Policy Enforcement
 
-This package deploys a **single PowerShell script** that enforces a
-defined baseline of **Visual Studio Code enterprise policies** via the
-registry.\
-It includes **detection**, **remediation**, and **post-validation**,
-making it suitable for deployment using **Microsoft Intune** or
-**Microsoft Configuration Manager (SCCM)**.
-
-## 🔧 Before You Package the Script (Required Preparation)
-
-Before creating an Intune Win32 app or deploying the script, you **must
-update the script** to match your environment.
-
-## 1️⃣ Set your corporate name
-
-Update the variable inside the script:
-
-``` powershell
-$CorporateName = "Example"
-```
-
-Use your organization's actual name (e.g., `"Contoso"`).\
-This value determines where the script stores its detection markers.
-
-## 2️⃣ Define `AllowedExtensions`
-
-Update the JSON stored in this variable:
-
-``` powershell
-$AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true, "openai.chatgpt": true}'
-```
-
-Modify the list of allowed extensions to match your requirements.
-
-## 3️⃣ Review and update all policy definitions
-
-Adjust the `$VSCodePolicies` array to specify:
-
--   Policy names\
--   Registry types (`DWord`, `String`, `MultiString`)\
--   Desired values
-
-For **REG_SZ** policies:\
-If the desired value is an empty string (`""`), the script will
-**delete** the registry value.
-
-Refer to the **Policy Table** in this README for descriptions, types,
-and default values.
-
-# 📌 Script Overview
+This package deploys a single PowerShell script that enforces a defined baseline of Visual Studio Code enterprise policies via the registry.
 
 The script performs:
 
-1.  **Detection** of all defined VS Code enterprise policy registry
-    values\
-2.  **Remediation** of all non-compliant or missing values\
-3.  **Final detection**\
-4.  Exit codes:
-    -   `0` → Fully compliant\
-    -   `1` → Not compliant
+- Detection of current policy values
+- Remediation of non-compliant values
+- Final verification
 
-When fully compliant, the script writes:
+It is suitable for deployment using Microsoft Intune or Microsoft Configuration Manager (SCCM).
 
-    HKLM\Software\<CorporateName>\Visual Studio Code - Baseline Policy Enforcement    Installed     = "Yes"
-        ScriptVersion = "<ScriptVersion>"
 
-# 📁 Package Contents
+## 1. Before You Package the Script (Required Preparation)
 
-  ---------------------------------------------------------------------------------------------------
-  File                                               Description
-  -------------------------------------------------- ------------------------------------------------
-  `visualstudiocode-baselinepolicyenforcement.ps1`   Full detection + remediation logic
+Before creating an Intune Win32 app or deploying the script, you must update the script to match your environment.
 
-  `README.md`                                        Preparation, deployment, and detection
-                                                     instructions
-  ---------------------------------------------------------------------------------------------------
+### 1.1 Set your corporate name
 
-# 🛠 Policies Enforced
+In the script, update:
 
-All Visual Studio Code enterprise configuration is applied under:
+```powershell
+$CorporateName = "Example"
+```
 
-    HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode
+Use your organization’s actual name (for example, `Contoso`).
 
-# ✔ Policy Table (Default Values)
+This variable is used to build the following registry paths:
 
-  -----------------------------------------------------------------------------------------------
-  Policy Name                          Type           Default Value           Description
-  ------------------------------------ -------------- ----------------------- -------------------
-  AllowedExtensions                    REG_MULTI_SZ   JSON list               Specifies allowed
-                                                                              extensions.
+```
+HKLM\Software\<CorporateName>
+HKLM\Software\<CorporateName>\Visual Studio Code - Baseline Policy Enforcement
+```
 
-  ChatAgentExtensionTools              REG_DWORD      0                       Disables
-                                                                              third-party Chat
-                                                                              extension tools.
+These keys are created and updated only when the script has successfully enforced all policies.
 
-  ChatAgentMode                        REG_DWORD      0                       Disables Chat agent
-                                                                              mode.
+### 1.2 Define `AllowedExtensions`
 
-  ChatMCP                              REG_SZ         none                    Disables MCP server
-                                                                              support.
+Update the JSON stored in this variable:
 
-  ChatToolsAutoApprove                 REG_DWORD      0                       Disables Chat tool
-                                                                              auto-approval.
+```powershell
+$AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true}'
+```
 
-  ChatToolsTerminalEnableAutoApprove   REG_DWORD      0                       Disables
-                                                                              auto-approval for
-                                                                              Terminal Chat
-                                                                              tools.
+Modify the JSON object to include the Visual Studio Code extensions that are allowed in your environment.
 
-  EnableFeedback                       REG_DWORD      0                       Disables feedback
-                                                                              prompts and
-                                                                              surveys.
+Notes:
 
-  ExtensionGalleryServiceUrl           REG_SZ         ""                      Removes custom
-                                                                              extension gallery
-                                                                              URL.
+- This value is stored as a single `REG_MULTI_SZ` entry containing the JSON string.
+- Because it is JSON inside a multi-string value, it is not practical to use as a direct detection rule in Intune or SCCM.
 
-  McpGalleryServiceUrl                 REG_SZ         ""                      Removes custom MCP
-                                                                              gallery URL.
+### 1.3 Review and update policy definitions
 
-  TelemetryLevel                       REG_SZ         off                     Disables product
-                                                                              telemetry.
+All enforced policies are defined in the `$VSCodePolicies` array inside the script. For each entry, review and adjust:
 
-  UpdateMode                           REG_SZ         default                 Enables background
-                                                                              update checks.
-  -----------------------------------------------------------------------------------------------
+- `Name`
+- `ValueKind` (for example `DWord`, `String`, `MultiString`)
+- `Value`
 
-# 🔎 Detection Method (Intune / SCCM)
+Special rule for string policies (REG_SZ):
 
-## 1. Detect ALL enforced VS Code policies (excluding AllowedExtensions)
+- If `ValueKind = 'String'` and `Value` is an empty string (`""`), the script will delete that registry value instead of setting it.
 
-Multiple registry detection rules must be created.
+See the policy table later in this document for an overview of default values and descriptions.
 
-## 2. Corporate detection keys
+## 2. Script Overview
 
-These registry keys confirm full compliance including handling of
-`AllowedExtensions`.
+The script targets this registry base key for Visual Studio Code policies:
 
-# 📦 Packaging for Intune (Win32)
+```
+HKLM\SOFTWARE\Policies\Microsoft\VSCode
+```
 
-1.  Complete required script edits\
-2.  Create folder structure\
-3.  Package with IntuneWinAppUtil\
-4.  Define detection rules
+The flow is:
 
-# 🧩 Deployment Monitoring
+1. Read current registry values for all policies defined in `$VSCodePolicies`.
+2. Compare current values to the desired values.
+3. Remediate non-compliant values:
+   - Create missing values
+   - Update incorrect values
+   - Delete values that should not exist (for empty-string REG_SZ policies)
+4. Run detection again after remediation.
+5. Exit with:
+   - `0` if all policies are compliant
+   - `1` if one or more policies are still non-compliant
 
-Use Intune device install status to verify deployment results.
+If the final compliance check passes, the script writes detection marker keys under:
 
-# ✔ Deployment Complete
+```
+HKLM\Software\<CorporateName>\Visual Studio Code - Baseline Policy Enforcement
+    Installed     = "Yes"
+    ScriptVersion = "<ScriptVersion>"
+```
 
-Visual Studio Code enterprise policies are now centrally defined,
-enforced, remediated, and verifiable.
+These markers are used as a proxy signal that:
+
+- All registry policies (including `AllowedExtensions`) have been evaluated, and
+- The system is considered compliant according to the script.
+
+## 3. Package Contents
+
+| File                                             | Description                                |
+|--------------------------------------------------|--------------------------------------------|
+| `visualstudiocode-baselinepolicyenforcement.ps1` | Detection and remediation script           |
+| `README.md`                                      | Preparation, deployment and detection info |
+
+## 4. Policies Enforced
+
+All policies are configured under:
+
+```
+HKLM\SOFTWARE\Policies\Microsoft\VSCode
+```
+
+### 4.1 Special behaviour for REG_SZ policies
+
+For any entry in `$VSCodePolicies` where:
+
+- `ValueKind = 'String'`, and
+- `Value` is an empty string (`""`),
+
+the script will delete the corresponding registry value instead of setting it.
+
+### 4.2 Policy table (defaults from the example script)
+
+| Policy Name                        | Type         | Default Value  | Description                                                                 |
+|------------------------------------|--------------|----------------|-----------------------------------------------------------------------------|
+| AllowedExtensions                  | REG_MULTI_SZ | `{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true}`   | List of allowed VS Code extensions, stored as a single JSON multi-string.   |
+| ChatAgentExtensionTools            | REG_DWORD    | 0              | Disables tools contributed by third-party Chat extensions.                  |
+| ChatAgentMode                      | REG_DWORD    | 0              | Disables Chat agent mode.                                                   | 
+| ChatMCP                            | REG_SZ       | none           | Disables MCP server support. Set `""` in the script to remove it.           |
+| ChatToolsAutoApprove               | REG_DWORD    | 0              | Disables global Chat tool auto-approval.                                    |
+| ChatToolsTerminalEnableAutoApprove | REG_DWORD    | 0              | Disables auto-approval for terminal Chat tools.                             |
+| EnableFeedback                     | REG_DWORD    | 0              | Disables feedback mechanisms such as surveys and issue reporting.           | 
+| ExtensionGalleryServiceUrl         | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value.          |
+| McpGalleryServiceUrl               | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value.          |
+| TelemetryLevel                     | REG_SZ       | off            | Disables Visual Studio Code product telemetry.                              |
+| UpdateMode                         | REG_SZ       | default        | Enables automatic background update checks.                                 |
+
+## 5. Detection Method (Intune / SCCM)
+
+The recommended detection strategy combines:
+
+1. Direct detection of registry policy values (excluding `AllowedExtensions`), and  
+2. Detection of the corporate marker keys written by the script.
+
+### 5.1 Detect enforced VS Code policies (excluding `AllowedExtensions`)
+
+Create registry-based detection rules for the following values under:
+
+```
+HKLM\SOFTWARE\Policies\Microsoft\VSCode
+```
+
+- `ChatAgentExtensionTools` = `0` (REG_DWORD)
+- `ChatAgentMode` = `0` (REG_DWORD)
+- `ChatMCP` = `none` (REG_SZ)
+- `ChatToolsAutoApprove` = `0` (REG_DWORD)
+- `ChatToolsTerminalEnableAutoApprove` = `0` (REG_DWORD)
+- `EnableFeedback` = `0` (REG_DWORD)
+- `TelemetryLevel` = `off` (REG_SZ)
+- `UpdateMode` = `default` (REG_SZ)
+
+Policies whose desired value is empty (for example `ExtensionGalleryServiceUrl` and `McpGalleryServiceUrl`) are intentionally removed.
+
+`AllowedExtensions` is excluded because it cannot be reliably detected.
+
+### 5.2 Detect corporate marker keys
+
+Use this path:
+
+```
+HKLM\Software\<CorporateName>\Visual Studio Code - Baseline Policy Enforcement
+```
+
+Check:
+
+- `Installed` = `Yes` (REG_SZ)
+- `ScriptVersion` matches the script value (REG_SZ)
+
+These keys confirm full execution and validation of *all* policies.
+
+## 6. Packaging for Intune (Win32)
+
+1. Complete script preparation  
+2. Structure files:
+
+```
+VSCodePolicy\
+    visualstudiocode-baselinepolicyenforcement.ps1
+    README.md
+```
+
+3. Package with `IntuneWinAppUtil.exe`  
+4. Install command:
+
+```
+powershell.exe -ExecutionPolicy Bypass -File .\visualstudiocode-baselinepolicyenforcement.ps1
+```
+
+5. Configure detection rules as described
+
+## 7. Monitoring Deployment
+
+In Intune:
+
+```
+Apps → Visual Studio Code – Baseline Policy Enforcement → Device install status
+```
+
+- **Installed** → All detection rules matched  
+- **Failed** → One or more detection rules did not match
+
+## 8. Deployment Complete
+
+Visual Studio Code enterprise policies are now centrally enforced, remediated, and verified.
