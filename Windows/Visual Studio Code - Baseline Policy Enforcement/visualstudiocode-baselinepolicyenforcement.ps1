@@ -35,6 +35,15 @@
     This example is how to run this script running Windows PowerShell. This is also the command that needs to be use when deploying it via Microsoft Configuration Manager or Microsoft Intune.
 #>
 
+# Replace "Example" with your company name e.g. "Contoso"
+$CorporateName = "Example"
+
+# Other variables
+$ApplicationName = "Visual Studio Code - Baseline Policy Enforcement"
+$CorporateRegistryPath = "HKLM:\Software\$CorporateName"
+$AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName"
+$ScriptVersion = "20251115"
+
 #region Pre-flight: optional elevation check (does not block execution)
 try {
     $currentIdentity  = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -312,6 +321,30 @@ $finalCompliant = Test-VSCodePoliciesCompliant
 
 if ($finalCompliant) {
     Write-Host "`nFinal result: Visual Studio Code policies are compliant."
+    # Let's create registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes and close the script
+    Write-Host "Creating registry key for Microsoft Intune or Microsoft Configuration Manager detection rule purposes..."
+    if (-not (Test-Path -Path $CorporateRegistryPath)) {
+        New-Item -Path $CorporateRegistryPath -Force -Verbose
+    }else {
+        Write-Host "Registry path '$CorporateRegistryPath' is already created. Let's continue..." 
+    }
+
+    if (-not (Test-Path -Path $AppicationRegistryPath)) {
+        New-Item -Path $AppicationRegistryPath -Force -Verbose
+    }else {
+        Write-Host "Registry path '$AppicationRegistryPath' is already created. Let's continue..." 
+    }
+
+    Set-ItemProperty -Path $AppicationRegistryPath -Name "Installed" -Value "Yes" -Type "String" -Force -Verbose
+    Set-ItemProperty -Path $AppicationRegistryPath -Name "ScriptVersion" -Value "$ScriptVersion" -Type "String" -Force -Verbose
+
+    # Wait for moment
+    Start-Sleep -Seconds 10
+
+    # Closing script
+    Write-Output "All done. Closing script..."
+    Start-Sleep -Seconds 10
+    
     exit 0
 } else {
     Write-Warning "`nFinal result: Visual Studio Code policies are NOT fully compliant."
