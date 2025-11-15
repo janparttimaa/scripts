@@ -28,56 +28,78 @@ try {
 }
 #endregion Pre-flight
 
-#region Configuration – desired VS Code policy state
+#region Configuration – desired Visual Studio Code policy state
 
 # Registry base path for VS Code policies
 $VSCodePolicyRegPath = 'HKLM:\SOFTWARE\Policies\Microsoft\VSCode'
 
 # JSON string for AllowedExtensions (stored as REG_MULTI_SZ with a single entry)
-$AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true}'
+$AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true, "
+openai.chatgpt": true}'
 
 # All policies and their desired values live here.
 # This block is used by BOTH detection and remediation, so they always match.
+# NOTE: For ANY String policy: if Value = '' (empty string), the registry value will be removed.
 $VSCodePolicies = @(
     @{
-        Name      = 'UpdateMode'                            # Enable automatic installation of VS Code updates.
-        ValueKind = 'String'                                # REG_SZ
-        Value     = 'default'                               # default - automatic checking for updates is enabled and runs in the background periodically.
-    }
-    @{
-        Name      = 'EnableFeedback'                        # Configure feedback mechanisms (issue reporter and surveys).
-        ValueKind = 'DWord'                                 # REG_DWORD
-        Value     = 0                                       # 0 - disabled
-    }
-    @{
-        Name      = 'TelemetryLevel'                        # Specify telemetry data level.
-        ValueKind = 'String'                                # REG_SZ
-        Value     = 'off'                                   # off - disables all product telemetry.
-    }
-    @{
-        Name      = 'ChatToolsTerminalEnableAutoApprove'    # Enable the rule-based auto-approval for the terminal tool.
-        ValueKind = 'DWord'                                 # REG_DWORD
-        Value     = 0                                       # 0 - disabled
+        Name      = 'AllowedExtensions'                     # Specify which extensions can be installed.
+        ValueKind = 'MultiString'                           # REG_MULTI_SZ with one element (JSON string)
+        Value     = @($AllowedExtensionsJson)               # See line number 37. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-allowed-extensions
     }
     @{
         Name      = 'ChatAgentExtensionTools'               # Enable using tools contributed by third-party extensions.
         ValueKind = 'DWord'                                 # REG_DWORD
-        Value     = 0
+        Value     = 0                                       # 0 - disabled / 1 - enabled.
     }
     @{
         Name      = 'ChatAgentMode'                         # Enable agent mode.
         ValueKind = 'DWord'                                 # REG_DWORD
-        Value     = 0                                       # 0 - disabled
+        Value     = 0                                       # 0 - disabled / 1 - enabled.
     }
     @{
-        Name      = 'ChatToolsAutoApprove'                  # ChatToolsAutoApprove
+        Name      = 'ChatMCP'                               # Enable Model Context Protocol (MCP) servers support and which sources are allowed.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = 'none'                                  # none - MCP server support is disabled. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-mcp-server-access
+                                                            # Set to '' if you want to remove this value.
+    }
+    @{
+        Name      = 'ChatToolsAutoApprove'                  # Enable global auto-approval for agent mode tools.
         ValueKind = 'DWord'                                 # REG_DWORD
-        Value     = 0                                       # 0 - disabled
+        Value     = 0                                       # 0 - disabled / 1 - enabled.
     }
     @{
-        Name      = 'AllowedExtensions'                     # Specify which extensions can be installed.
-        ValueKind = 'MultiString'                           # REG_MULTI_SZ with one element (JSON string)
-        Value     = @($AllowedExtensionsJson)               # (See line number 38).
+        Name      = 'ChatToolsTerminalEnableAutoApprove'    # Enable the rule-based auto-approval for the terminal tool.
+        ValueKind = 'DWord'                                 # REG_DWORD
+        Value     = 0                                       # 0 - disabled / 1 - enabled.
+    }
+    @{
+        Name      = 'EnableFeedback'                        # Configure feedback mechanisms (issue reporter and surveys).
+        ValueKind = 'DWord'                                 # REG_DWORD
+        Value     = 0                                       # 0 - disabled / 1 - enabled.
+    }
+    @{
+        Name      = 'ExtensionGalleryServiceUrl'            # Configure the Marketplace service URL to connect to.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = ''                                      # Defined URL e.g. 'https://example.com/'
+                                                            # Set to '' to delete this registry value.
+    }
+    @{
+        Name      = 'McpGalleryServiceUrl'                  # Configure the MCP Gallery service URL to connect to.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = ''                                      # Defined URL e.g. 'https://example.com/'
+                                                            # Set to '' to delete this registry value.
+    }
+    @{
+        Name      = 'TelemetryLevel'                        # Specify telemetry data level.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = 'off'                                   # off - disables all product telemetry. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-telemetry-level
+                                                            # Set to '' to delete this registry value.
+    }
+    @{
+        Name      = 'UpdateMode'                            # Enable automatic installation of VS Code updates.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = 'default'                               # default - automatic checking for updates is enabled and runs in the background periodically.
+                                                            # Set to '' to delete this registry value. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-automatic-updates
     }
 )
 #endregion Configuration
@@ -86,7 +108,7 @@ $VSCodePolicies = @(
 function Get-VSCodePolicyState {
     <#
     .SYNOPSIS
-        Returns current vs desired state for each VS Code policy value.
+        Returns current vs desired state for each Visual Studio Code policy value.
     .OUTPUTS
         [PSCustomObject] per policy with:
         - Name, ValueKind, DesiredValue, CurrentValue, Compliant (bool)
@@ -121,8 +143,19 @@ function Get-VSCodePolicyState {
 
         $compliant = $false
 
+        # Generic rule: for ANY String policy, empty desired string means "value should not exist"
+        $desiredIsEmptyString = $false
+        if ($valueKind -eq 'String' -and $desired -is [string] -and [string]::IsNullOrWhiteSpace($desired)) {
+            $desiredIsEmptyString = $true
+        }
+
         if ($null -eq $current) {
-            $compliant = $false
+            if ($desiredIsEmptyString) {
+                # Desired = empty string, registry value missing => compliant
+                $compliant = $true
+            } else {
+                $compliant = $false
+            }
         } else {
             if ($valueKind -eq 'MultiString') {
                 # Compare as joined string to ensure deterministic match
@@ -164,7 +197,7 @@ function Test-VSCodePoliciesCompliant {
 function Set-VSCodePolicies {
     <#
     .SYNOPSIS
-        Applies/remediates VS Code policies as defined in $VSCodePolicies.
+        Applies/remediates Visual Studio Code policies as defined in $VSCodePolicies.
     #>
     [CmdletBinding()]
     param()
@@ -185,6 +218,21 @@ function Set-VSCodePolicies {
             $current  = $existing.$name
         } catch {
             $current = $null
+        }
+
+        # Generic rule: for ANY String policy, empty desired string means "delete the registry value"
+        if ($valueKind -eq 'String' -and $desired -is [string] -and [string]::IsNullOrWhiteSpace($desired)) {
+            if ($null -ne $current) {
+                Write-Host "Removing policy '$name' because desired value is empty (deleting registry entry)."
+                try {
+                    Remove-ItemProperty -Path $VSCodePolicyRegPath -Name $name -ErrorAction Stop
+                } catch {
+                    Write-Warning "Failed to remove policy '$name': $_"
+                }
+            } else {
+                Write-Host "Policy '$name' not configured and desired value is empty (no action needed)."
+            }
+            continue
         }
 
         $needsUpdate = $true
@@ -215,7 +263,7 @@ function Set-VSCodePolicies {
 #endregion Functions
 
 #region Main – Detect > Remediate if needed > Final detect > Exit code
-Write-Host "=== VS Code policy enforcement script starting ==="
+Write-Host "=== Visual Studio Code policy enforcement script starting ==="
 
 Write-Host "`n--- State BEFORE remediation ---"
 $stateBefore = Get-VSCodePolicyState
@@ -229,7 +277,7 @@ if (-not $initialCompliant) {
     Write-Host "`nNon-compliant settings detected. Applying remediation..."
     Set-VSCodePolicies
 } else {
-    Write-Host "`nAll VS Code policies already compliant. No remediation needed."
+    Write-Host "`nAll Visual Studio Code policies already compliant. No remediation needed."
 }
 
 Write-Host "`n--- State AFTER remediation (final check) ---"
@@ -241,10 +289,10 @@ $stateAfter | ForEach-Object {
 $finalCompliant = Test-VSCodePoliciesCompliant
 
 if ($finalCompliant) {
-    Write-Host "`nFinal result: VS Code policies are compliant."
+    Write-Host "`nFinal result: Visual Studio Code policies are compliant."
     exit 0
 } else {
-    Write-Warning "`nFinal result: VS Code policies are NOT fully compliant."
+    Write-Warning "`nFinal result: Visual Studio Code policies are NOT fully compliant."
     exit 1
 }
 #endregion Main
