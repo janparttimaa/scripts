@@ -129,14 +129,14 @@ the script will delete the corresponding registry value instead of setting it.
 | AllowedExtensions                  | REG_MULTI_SZ | `{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true}`   | List of allowed VS Code extensions, stored as a single JSON multi-string ([see chapter 1.2](#12-define-allowedextensions)).   |
 | ChatAgentExtensionTools            | REG_DWORD    | 0              | Disables tools contributed by third-party Chat extensions.                  |
 | ChatAgentMode                      | REG_DWORD    | 0              | Disables Chat agent mode.                                                   | 
-| ChatMCP                            | REG_SZ       | none           | Disables MCP server support. Set `""` in the script to remove it. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-mcp-server-access           |
+| ChatMCP                            | REG_SZ       | none           | Disables MCP server support. Set `""` in the script to remove it. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-mcp-server-access)|
 | ChatToolsAutoApprove               | REG_DWORD    | 0              | Disables global Chat tool auto-approval.                                    |
 | ChatToolsTerminalEnableAutoApprove | REG_DWORD    | 0              | Disables auto-approval for terminal Chat tools.                             |
 | EnableFeedback                     | REG_DWORD    | 0              | Disables feedback mechanisms such as surveys and issue reporting.           | 
 | ExtensionGalleryServiceUrl         | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value.          |
 | McpGalleryServiceUrl               | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value.          |
-| TelemetryLevel                     | REG_SZ       | off            | Disables Visual Studio Code product telemetry. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-telemetry-level                             |
-| UpdateMode                         | REG_SZ       | default        | Enables automatic background update checks. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-automatic-updates                                |
+| TelemetryLevel                     | REG_SZ       | off            | Disables Visual Studio Code product telemetry. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-telemetry-level)|
+| UpdateMode                         | REG_SZ       | default        | Enables automatic background update checks. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-automatic-updates) |
 
 ## 5. Detection Method (Intune / SCCM)
 
