@@ -44,8 +44,8 @@ Execution is controlled by the Boolean switches at the top of the script (e.g. `
 Before deploying the script, you need to define what execution swithes you are using:
 
 | Variable               | Default Value | Notes |
-| ---------------------- | ------------- | ------
+| ---------------------- | ------------- | ------ |
 | ``$RunChromeCleanup``      | ``$true`` | If set to ``$false``, Google Chrome will not be uninstalled. |
 | ``$RunFirefoxCleanup``     | ``$true`` | If set to ``$false``, Mozilla Firefox will not be uninstalled. |
 | ``$RunGimpCleanup``        | ``$true`` | If set to ``$false``, GIMP will not be uninstalled. |
-| ``$RunRefinitivCleanup``   | ``$true`` | If set to ``$false``, Refinitiv Workspace / LSEG Workspace will not be uninstalled. 
+| ``$RunRefinitivCleanup``   | ``$true`` | If set to ``$false``, Refinitiv Workspace / LSEG Workspace will not be uninstalled. |
