@@ -34,51 +34,50 @@ try {
 $VSCodePolicyRegPath = 'HKLM:\SOFTWARE\Policies\Microsoft\VSCode'
 
 # JSON string for AllowedExtensions (stored as REG_MULTI_SZ with a single entry)
-# Matches the content of the provided .reg hex value.
 $AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true}'
 
 # All policies and their desired values live here.
 # This block is used by BOTH detection and remediation, so they always match.
 $VSCodePolicies = @(
     @{
-        Name      = 'UpdateMode'
-        ValueKind = 'String'        # REG_SZ
-        Value     = 'default'
+        Name      = 'UpdateMode'                            # Enable automatic installation of VS Code updates.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = 'default'                               # default - automatic checking for updates is enabled and runs in the background periodically.
     }
     @{
-        Name      = 'EnableFeedback'
-        ValueKind = 'DWord'         # REG_DWORD
+        Name      = 'EnableFeedback'                        # Configure feedback mechanisms (issue reporter and surveys).
+        ValueKind = 'DWord'                                 # REG_DWORD
+        Value     = 0                                       # 0 - disabled
+    }
+    @{
+        Name      = 'TelemetryLevel'                        # Specify telemetry data level.
+        ValueKind = 'String'                                # REG_SZ
+        Value     = 'off'                                   # off - disables all product telemetry.
+    }
+    @{
+        Name      = 'ChatToolsTerminalEnableAutoApprove'    # Enable the rule-based auto-approval for the terminal tool.
+        ValueKind = 'DWord'                                 # REG_DWORD
+        Value     = 0                                       # 0 - disabled
+    }
+    @{
+        Name      = 'ChatAgentExtensionTools'               # Enable using tools contributed by third-party extensions.
+        ValueKind = 'DWord'                                 # REG_DWORD
         Value     = 0
     }
     @{
-        Name      = 'TelemetryLevel'
-        ValueKind = 'String'        # REG_SZ
-        Value     = 'off'
+        Name      = 'ChatAgentMode'                         # Enable agent mode.
+        ValueKind = 'DWord'                                 # REG_DWORD
+        Value     = 0                                       # 0 - disabled
     }
     @{
-        Name      = 'ChatToolsTerminalEnableAutoApprove'
-        ValueKind = 'DWord'         # REG_DWORD
-        Value     = 0
+        Name      = 'ChatToolsAutoApprove'                  # ChatToolsAutoApprove
+        ValueKind = 'DWord'                                 # REG_DWORD
+        Value     = 0                                       # 0 - disabled
     }
     @{
-        Name      = 'ChatAgentExtensionTools'
-        ValueKind = 'DWord'         # REG_DWORD
-        Value     = 0
-    }
-    @{
-        Name      = 'ChatAgentMode'
-        ValueKind = 'DWord'         # REG_DWORD
-        Value     = 0
-    }
-    @{
-        Name      = 'ChatToolsAutoApprove'
-        ValueKind = 'DWord'         # REG_DWORD
-        Value     = 0
-    }
-    @{
-        Name      = 'AllowedExtensions'
-        ValueKind = 'MultiString'   # REG_MULTI_SZ with one element (JSON string)
-        Value     = @($AllowedExtensionsJson)
+        Name      = 'AllowedExtensions'                     # Specify which extensions can be installed.
+        ValueKind = 'MultiString'                           # REG_MULTI_SZ with one element (JSON string)
+        Value     = @($AllowedExtensionsJson)               # (See line number 38).
     }
 )
 #endregion Configuration

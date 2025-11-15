@@ -28,7 +28,7 @@ This allows the script to act as both:
 
 | File | Purpose |
 |------|---------|
-| `VSCode_Policies.ps1` | Single-file detection + remediation script |
+| `vscode-policies.ps1` | Single-file detection + remediation script |
 | `README.md` | Deployment instructions |
 
 ---
