@@ -1,4 +1,4 @@
-# Visual Studio Code Policy Enforcement – Intune Deployment
+# Visual Studio Code - Baseline Policy Enforcement
 
 This package deploys a PowerShell script that enforces required **Visual Studio Code enterprise policy settings** through the registry.
 
