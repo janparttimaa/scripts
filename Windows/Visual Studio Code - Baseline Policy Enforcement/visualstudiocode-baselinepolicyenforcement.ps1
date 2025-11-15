@@ -27,7 +27,7 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20251115 - Initial release
+    20251116 - Initial release
 
 .EXAMPLE
     Run following command with with admin rights:
@@ -43,7 +43,7 @@ $CorporateName = "Example"
 $ApplicationName = "Visual Studio Code - Baseline Policy Enforcement"
 $CorporateRegistryPath = "HKLM:\Software\$CorporateName"
 $AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName"
-$ScriptVersion = "20251115"
+$ScriptVersion = "20251116"
 
 #region Pre-flight: optional elevation check (does not block execution)
 try {
