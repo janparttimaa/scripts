@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-  Enforces Visual Studio Code policies under:
-  HKLM\SOFTWARE\Policies\Microsoft\VSCode
+    Visual Studio Code - Baseline Policy Enforcement
 
 .DESCRIPTION
+  - Enforces Visual Studio Code policies under: HKLM\SOFTWARE\Policies\Microsoft\VSCode
   - Must be run as Administrator or SYSTEM.
   - Single script: detection + remediation combined.
   - Flow:
@@ -11,6 +11,28 @@
       2. Remediate non-compliant values
       3. Detect again
       4. Exit 0 if compliant, 1 otherwise
+
+.VERSION
+    20251115
+
+.AUTHOR
+    Jan Parttimaa (https://github.com/janparttimaa)
+
+.COPYRIGHT
+    © 2025 Jan Parttimaa. All rights reserved.
+
+.LICENSE
+    This script is licensed under the MIT License.
+    You may obtain a copy of the License at https://opensource.org/licenses/MIT
+
+.RELEASE NOTES
+    20251115 - Initial release
+
+.EXAMPLE
+    Run following command with with admin rights:
+    powershell.exe -ExecutionPolicy Bypass -File .\vscode-policies.ps1
+
+    This example is how to run this script running Windows PowerShell. This is also the command that needs to be use when deploying it via Microsoft Configuration Manager or Microsoft Intune.
 #>
 
 #region Pre-flight: optional elevation check (does not block execution)
