@@ -1,4 +1,4 @@
-# VS Code Policy Enforcement – Intune Deployment
+# Visual Studio Code Policy Enforcement – Intune Deployment
 
 This package deploys a PowerShell script that enforces required **Visual Studio Code enterprise policy settings** through the registry.
 
@@ -15,7 +15,7 @@ All within a **single PowerShell file**, with **no parameters**, and is suitable
 
 The script:
 
-1. **Reads** all VS Code policy values from  
+1. **Reads** all Visual Studio Code policy values from  
    `HKLM\SOFTWARE\Policies\Microsoft\VSCode`
 2. **Compares** existing values with the **desired state**
 3. **Remediates** any deviations (creates, updates, or deletes values)
@@ -79,7 +79,7 @@ Recommended:
 
 Go to:
 
-**Apps → VS Code – Policy Enforcement → Device install status**
+**Apps → Visual Studio Code – Baseline Policy Enforcement → Device install status**
 
 Results:
 
@@ -88,4 +88,4 @@ Results:
 
 ## ✔ Deployment Complete
 
-VS Code enterprise policy configuration is now fully automated.
+Visual Studio Code enterprise policy configuration is now fully automated.
