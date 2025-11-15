@@ -133,8 +133,8 @@ the script will delete the corresponding registry value instead of setting it.
 | ChatToolsAutoApprove               | REG_DWORD    | 0              | Disables global Chat tool auto-approval. Value `1` enables global Chat tool auto-approval. |
 | ChatToolsTerminalEnableAutoApprove | REG_DWORD    | 0              | Disables auto-approval for terminal Chat tools. Value `1` enables auto-approval for terminal Chat tools. |
 | EnableFeedback                     | REG_DWORD    | 0              | Disables feedback mechanisms such as surveys and issue reporting. Value `1` enables feedback mechanisms such as surveys and issue reporting. | 
-| ExtensionGalleryServiceUrl         | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value.          |
-| McpGalleryServiceUrl               | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value.          |
+| ExtensionGalleryServiceUrl         | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value. Define URL if needed e.g. `"https://example.com"`|
+| McpGalleryServiceUrl               | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value. Define URL if needed e.g. `"https://example.com"`|
 | TelemetryLevel                     | REG_SZ       | off            | Disables Visual Studio Code product telemetry. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-telemetry-level)|
 | UpdateMode                         | REG_SZ       | default        | Enables automatic background update checks. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-automatic-updates) |
 
