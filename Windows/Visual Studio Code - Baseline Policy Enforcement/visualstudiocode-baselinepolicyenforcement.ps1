@@ -30,7 +30,7 @@
 
 .EXAMPLE
     Run following command with with admin rights:
-    powershell.exe -ExecutionPolicy Bypass -File .\vscode-policies.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\visualstudiocode-baselinepolicyenforcement.ps1
 
     This example is how to run this script running Windows PowerShell. This is also the command that needs to be use when deploying it via Microsoft Configuration Manager or Microsoft Intune.
 #>
