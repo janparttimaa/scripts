@@ -11,6 +11,7 @@
       2. Remediate non-compliant values
       3. Detect again
       4. Exit 0 if compliant, 1 otherwise
+  - NOTE: You need to do some preparations before deploying this script. Please check preparation instructions from GitHub.
 
 .VERSION
     20251115
@@ -344,7 +345,7 @@ if ($finalCompliant) {
     # Closing script
     Write-Output "All done. Closing script..."
     Start-Sleep -Seconds 10
-    
+
     exit 0
 } else {
     Write-Warning "`nFinal result: Visual Studio Code policies are NOT fully compliant."
