@@ -112,13 +112,13 @@ $VSCodePolicies = @(
     @{
         Name      = 'ExtensionGalleryServiceUrl'            # Configure the Marketplace service URL to connect to.
         ValueKind = 'String'                                # REG_SZ
-        Value     = ''                                      # Defined URL e.g. 'https://example.com/'
+        Value     = ''                                      # Defined URL e.g. 'https://extension.example.com/'
                                                             # Set to '' to delete this registry value.
     }
     @{
         Name      = 'McpGalleryServiceUrl'                  # Configure the MCP Gallery service URL to connect to.
         ValueKind = 'String'                                # REG_SZ
-        Value     = ''                                      # Defined URL e.g. 'https://example.com/'
+        Value     = ''                                      # Defined URL e.g. 'https://mcp.example.com/'
                                                             # Set to '' to delete this registry value.
     }
     @{
