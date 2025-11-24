@@ -67,8 +67,7 @@ try {
 $VSCodePolicyRegPath = 'HKLM:\SOFTWARE\Policies\Microsoft\VSCode'
 
 # JSON string for AllowedExtensions (stored as REG_MULTI_SZ with a single entry)
-$AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true, "
-openai.chatgpt": true}'
+$AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true, "openai.chatgpt": true, "github.copilot": true}'
 
 # JSON string for ChatToolsEligibleForAutoApproval (stored as REG_MULTI_SZ with a single entry). Set value '' to delete this registry value.
 $ChatToolsEligibleForAutoApproval = ''

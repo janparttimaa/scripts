@@ -126,7 +126,7 @@ the script will delete the corresponding registry value instead of setting it.
 
 | Policy Name                        | Type         | Default Value  | Description                                                                 |
 |------------------------------------|--------------|----------------|-----------------------------------------------------------------------------|
-| AllowedExtensions                  | REG_MULTI_SZ | `{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true}` | List of allowed VS Code extensions, stored as a single JSON multi-string ([see chapter 1.2](#12-define-allowedextensions)).   |
+| AllowedExtensions                  | REG_MULTI_SZ | `{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true, "openai.chatgpt": true, "github.copilot": true}` | List of allowed VS Code extensions, stored as a single JSON multi-string ([see chapter 1.2](#12-define-allowedextensions)).   |
 | ChatAgentExtensionTools            | REG_DWORD    | 0              | Disables tools contributed by third-party Chat extensions. Value `1` enables tools contributed by third-party Chat extensions. |
 | ChatAgentMode                      | REG_DWORD    | 0              | Disables Chat agent mode. Value `1` enables Chat agent mode. | 
 | ChatMCP                            | REG_SZ       | none           | Disables MCP server support. Set `""` in the script to remove it. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-mcp-server-access)|
