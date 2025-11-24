@@ -131,6 +131,7 @@ the script will delete the corresponding registry value instead of setting it.
 | ChatAgentMode                      | REG_DWORD    | 0              | Disables Chat agent mode. Value `1` enables Chat agent mode. | 
 | ChatMCP                            | REG_SZ       | none           | Disables MCP server support. Set `""` in the script to remove it. [More information and available values.](https://code.visualstudio.com/docs/setup/enterprise#_configure-mcp-server-access)|
 | ChatToolsAutoApprove               | REG_DWORD    | 0              | Disables global Chat tool auto-approval. Value `1` enables global Chat tool auto-approval. |
+| ChatToolsEligibleForAutoApproval   | REG_MULTI_SZ | `""`           | ***(Experimental)*** Controls which tools are eligible for automatic approval. Tools set to 'false' will always present a confirmation and will never offer the option to auto-approve. The default behavior (or setting a tool to 'true') may result in the tool offering auto-approval options. Set `""` in the script to remove it. |
 | ChatToolsTerminalEnableAutoApprove | REG_DWORD    | 0              | Disables auto-approval for terminal Chat tools. Value `1` enables auto-approval for terminal Chat tools. |
 | EnableFeedback                     | REG_DWORD    | 0              | Disables feedback mechanisms such as surveys and issue reporting. Value `1` enables feedback mechanisms such as surveys and issue reporting. | 
 | ExtensionGalleryServiceUrl         | REG_SZ       | `""`           | Desired value is empty, so the script removes this registry value. Define URL if needed e.g. `"https://extension.example.com"`|
@@ -164,7 +165,7 @@ HKLM\SOFTWARE\Policies\Microsoft\VSCode
 
 Policies whose desired value is empty (for example `ExtensionGalleryServiceUrl` and `McpGalleryServiceUrl`) are intentionally removed.
 
-`AllowedExtensions` is excluded because it cannot be reliably detected.
+`AllowedExtensions` and `ChatToolsEligibleForAutoApproval`are excluded because these cannot be reliably detected.
 
 ### 5.2 Detect corporate marker keys
 

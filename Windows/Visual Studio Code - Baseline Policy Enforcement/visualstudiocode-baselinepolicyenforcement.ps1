@@ -14,7 +14,7 @@
   - NOTE: You need to do some preparations before deploying this script. Please check preparation instructions from GitHub.
 
 .VERSION
-    20251115
+    20251124
 
 .AUTHOR
     Jan Parttimaa (https://github.com/janparttimaa)
@@ -28,6 +28,7 @@
 
 .RELEASE NOTES
     20251116 - Initial release
+    20251124 - Added setting "ChatToolsEligibleForAutoApproval"
 
 .EXAMPLE
     Run following command with with admin rights:
@@ -43,7 +44,7 @@ $CorporateName = "Example"
 $ApplicationName = "Visual Studio Code - Baseline Policy Enforcement"
 $CorporateRegistryPath = "HKLM:\Software\$CorporateName"
 $AppicationRegistryPath = "HKLM:\Software\$CorporateName\$ApplicationName"
-$ScriptVersion = "20251116"
+$ScriptVersion = "20251124"
 
 #region Pre-flight: optional elevation check (does not block execution)
 try {
@@ -69,6 +70,9 @@ $VSCodePolicyRegPath = 'HKLM:\SOFTWARE\Policies\Microsoft\VSCode'
 $AllowedExtensionsJson = '{"github.vscode-pull-request-github": true, "ms-vscode.powershell": true, "ms-vscode-remote.remote-wsl": true, "hediet.vscode-drawio": true, "
 openai.chatgpt": true}'
 
+# JSON string for ChatToolsEligibleForAutoApproval (stored as REG_MULTI_SZ with a single entry). Set value '' to delete this registry value.
+$ChatToolsEligibleForAutoApproval = ''
+
 # All policies and their desired values live here.
 # This block is used by BOTH detection and remediation, so they always match.
 # NOTE: For ANY String policy: if Value = '' (empty string), the registry value will be removed.
@@ -76,7 +80,7 @@ $VSCodePolicies = @(
     @{
         Name      = 'AllowedExtensions'                     # Specify which extensions can be installed.
         ValueKind = 'MultiString'                           # REG_MULTI_SZ with one element (JSON string)
-        Value     = @($AllowedExtensionsJson)               # See line number 37. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-allowed-extensions
+        Value     = @($AllowedExtensionsJson)               # See line number 70. More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-allowed-extensions
     }
     @{
         Name      = 'ChatAgentExtensionTools'               # Enable using tools contributed by third-party extensions.
@@ -95,9 +99,14 @@ $VSCodePolicies = @(
                                                             # Set to '' if you want to remove this value.
     }
     @{
-        Name      = 'ChatToolsAutoApprove'                  # Enable global auto-approval for agent mode tools.
-        ValueKind = 'DWord'                                 # REG_DWORD
+        Name      = 'ChatToolsAutoApprove'                  # Controls which tools are eligible for automatic approval.
+        ValueKind = 'String'                                # REG_DWORD
         Value     = 0                                       # 0 - disabled / 1 - enabled.
+    }
+    @{
+        Name      = 'ChatToolsEligibleForAutoApproval'      # Enable global auto-approval for agent mode tools.
+        ValueKind = 'MultiString'                           # REG_MULTI_SZ with one element (JSON string)
+        Value     = @($ChatToolsEligibleForAutoApproval)    # See line number 74.
     }
     @{
         Name      = 'ChatToolsTerminalEnableAutoApprove'    # Enable the rule-based auto-approval for the terminal tool.
