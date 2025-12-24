@@ -23,6 +23,9 @@
 .AUTHOR
     Jan Parttimaa
 
+.COPYRIGHT
+    © 2025 Jan Parttimaa. All rights reserved.
+
 .LICENSE
     This script is licensed under the MIT License.
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
