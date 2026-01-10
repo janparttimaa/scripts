@@ -6,6 +6,8 @@ AppLocker SuperScript removes per-user (AppData-installed) copies of following a
 - GIMP
 - Git for Windows
 - Refinitiv Workspace / LSEG Workspace
+- Zoom
+- Cisco Webex
 
 This script also stops only per-user processes, purges per-user data, cleans broken shortcuts in per-user Desktop/Start Menu, and removes per-user uninstall registry entries.
 
@@ -49,3 +51,5 @@ Before deploying the script, you need to define what execution swithes you are u
 | ``$RunFirefoxCleanup``     | ``$true`` | If set to ``$false``, Mozilla Firefox will not be uninstalled. |
 | ``$RunGimpCleanup``        | ``$true`` | If set to ``$false``, GIMP will not be uninstalled. |
 | ``$RunRefinitivCleanup``   | ``$true`` | If set to ``$false``, Refinitiv Workspace / LSEG Workspace will not be uninstalled. |
+| ``$RunZoomCleanup``   | ``$true`` | If set to ``$false``, Zoom will not be uninstalled. |
+| ``$RunWebexCleanup``   | ``$true`` | If set to ``$false``, Cisco Webex will not be uninstalled. |
