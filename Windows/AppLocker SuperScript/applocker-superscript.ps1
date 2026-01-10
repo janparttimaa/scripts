@@ -48,6 +48,7 @@ EXAMPLES
     $RunGitCleanup = $false
     $RunRefinitivCleanup = $false
     $RunZoomCleanup = $false
+    $RunWebexCleanup = $false
     .\PerUserAppCleanup.ps1
 #>
 
@@ -62,6 +63,8 @@ $RunGimpCleanup        = $true   # TRUE => run Uninstall-GimpFromAllUsers
 $RunGitCleanup         = $true   # TRUE => run Uninstall-GitFromAllUsers
 $RunRefinitivCleanup   = $true   # TRUE => run Uninstall-RefinitivWorkspaceFromAllUsers
 $RunZoomCleanup        = $true   # TRUE => run Uninstall-ZoomFromAllUsers
+$RunWebexCleanup       = $true   # TRUE => run Uninstall-WebexFromAllUsers
+
 
 # ========================================================
 #  COLORIZED LOGGING HELPERS
@@ -2029,6 +2032,236 @@ function Uninstall-ZoomFromAllUsers {
     Write-ZoomLog "=== Zoom per-user uninstall completed ==="
 }
 
+function Cleanup-WebexFromAllUsers {
+    <#
+    .SYNOPSIS
+        Removes per-user Cisco Webex / Cisco Spark artifacts across all user profiles (AppData ONLY).
+    .DESCRIPTION
+        - Does NOT run Webex uninstall exe
+        - Does NOT touch Program Files or ProgramData
+        - Stops ONLY per-user Webex/Spark processes (path must be under the user profile)
+        - Deletes ONLY AppData folders + per-user Desktop/Start Menu shortcuts
+        - Registry: ONLY HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall (for each user)
+          * Deletes fixed key: CiscoWebex
+          * Deletes any subkey where DisplayName contains "Webex"
+        - Logs to C:\ProgramData\AppLocker
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [switch]$PurgeData,
+        [switch]$KillProcesses
+    )
+
+    # Logging
+    $LogFolder = "C:\ProgramData\AppLocker"
+    $LogFile   = Join-Path $LogFolder ("WebexCleanup_{0}.log" -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
+    if (-not (Test-Path $LogFolder)) { New-Item -Path $LogFolder -ItemType Directory -Force | Out-Null }
+
+    function Write-WebexLog {
+        param([string]$Message, [string]$Level = "INFO")
+        $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+        $entry = "[$timestamp] [$Level] $Message"
+        Add-Content -Path $LogFile -Value $entry
+        $color = Get-LogForegroundColor -Message $Message -Level $Level
+        if ($color) { Write-Host $entry -ForegroundColor $color } else { Write-Host $entry }
+    }
+
+    Write-WebexLog "=== Starting Webex per-user cleanup (AppData ONLY) ==="
+    Write-WebexLog ("Log file: {0}" -f $LogFile)
+
+    # Admin check
+    $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($id)
+    if (-not $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+        throw "This function must be run as Administrator."
+    }
+
+    function Remove-PathSafe([string]$Path, [string]$Context) {
+        if ($Path -and (Test-Path -LiteralPath $Path)) {
+            try {
+                Write-WebexLog ("Deleting {0}: {1}" -f $Context, $Path) "WARN"
+                Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+                Write-WebexLog ("Deleted: {0}" -f $Path) "SUCCESS"
+            } catch {
+                Write-WebexLog ("Failed to delete {0}: {1} | {2}" -f $Context, $Path, $_.Exception.Message) "WARN"
+            }
+        }
+    }
+
+    function Remove-RegKeySafe([string]$KeyPath, [string]$Context) {
+        if ($KeyPath -and (Test-Path -LiteralPath $KeyPath)) {
+            try {
+                Write-WebexLog ("Deleting registry key {0}: {1}" -f $Context, $KeyPath) "WARN"
+                Remove-Item -LiteralPath $KeyPath -Recurse -Force -ErrorAction Stop
+                Write-WebexLog ("Deleted registry key: {0}" -f $KeyPath) "SUCCESS"
+            } catch {
+                Write-WebexLog ("Failed to delete registry key {0}: {1} | {2}" -f $Context, $KeyPath, $_.Exception.Message) "WARN"
+            }
+        }
+    }
+
+    function Stop-PerUserWebexProcesses {
+        param([string]$ProfilePath, [string]$UserName)
+
+        $escapedProfile = [Regex]::Escape($ProfilePath.TrimEnd('\'))
+        $perUserRegex   = "(?i)^$escapedProfile\\AppData\\"
+
+        $nameHints = '(?i)^(webex|webexmta|webexhost|webexteams|webexservice|ciscospark|ciscosparklauncher|ciscowebexlauncher|ciscocollabhost|ptoneclk|spark)$'
+
+        Write-WebexLog ("Checking for running Webex/Spark processes for {0} (per-user path only)..." -f $UserName)
+
+        $all = @()
+        try { $all = Get-Process -ErrorAction Stop } catch { $all = @() }
+
+        $targets = @()
+        foreach ($p in $all) {
+            if ($p.Name -notmatch $nameHints) { continue }
+
+            $exePath = $null
+            try {
+                $exePath = $p.Path
+                if (-not $exePath) { $exePath = $p.MainModule.FileName }
+            } catch { $exePath = $null }
+
+            if ($exePath -and ($exePath -match $perUserRegex)) {
+                $targets += [PSCustomObject]@{ Id = $p.Id; Name = $p.Name; Path = $exePath }
+            }
+        }
+
+        if (-not $targets -or $targets.Count -eq 0) {
+            Write-WebexLog ("No per-user Webex/Spark processes found for {0}." -f $UserName)
+            return
+        }
+
+        foreach ($t in $targets) {
+            Write-WebexLog ("Stopping per-user process for {0}: {1} (PID {2}) '{3}'" -f $UserName, $t.Name, $t.Id, $t.Path)
+            try {
+                Stop-Process -Id $t.Id -Force -ErrorAction Stop
+                Write-WebexLog ("Stopped PID {0} successfully." -f $t.Id) "SUCCESS"
+            } catch {
+                Write-WebexLog ("Failed to stop PID {0}: {1}" -f $t.Id, $_.Exception.Message) "WARN"
+            }
+        }
+    }
+
+    function Remove-WebexShortcutsForProfile {
+        param([string]$ProfilePath, [string]$UserName)
+
+        # Desktop shortcuts (only match by filename; we do not need to resolve target)
+        $desktop = Join-Path $ProfilePath 'Desktop'
+        if (Test-Path -LiteralPath $desktop) {
+            Get-ChildItem -LiteralPath $desktop -Filter '*.lnk' -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -match '(?i)webex|cisco\s*spark|ciscospark' } |
+                ForEach-Object { Remove-PathSafe -Path $_.FullName -Context "Desktop shortcut ($UserName)" }
+        }
+
+        # Per-user Start Menu Webex folders
+        $startMenuWebex1 = Join-Path $ProfilePath 'AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Cisco Webex'
+        $startMenuWebex2 = Join-Path $ProfilePath 'AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Webex'
+        Remove-PathSafe -Path $startMenuWebex1 -Context "Start Menu folder ($UserName)"
+        Remove-PathSafe -Path $startMenuWebex2 -Context "Start Menu folder ($UserName)"
+    }
+
+    function Remove-WebexUninstallKeysFromUser {
+        param([string]$Sid, [string]$ProfilePath)
+
+        $relRoot = 'Software\Microsoft\Windows\CurrentVersion\Uninstall'
+
+        $removeInHive = {
+            param([string]$MountedHKU, [string]$ContextLabel)
+
+            $uninstallRoot = Join-Path $MountedHKU $relRoot
+            if (-not (Test-Path -LiteralPath $uninstallRoot)) { return }
+
+            # Fixed key requested
+            $fixed = Join-Path $uninstallRoot 'CiscoWebex'
+            Remove-RegKeySafe -KeyPath $fixed -Context "HKCU Uninstall fixed key ($ContextLabel)"
+
+            # Any DisplayName containing Webex
+            Get-ChildItem -LiteralPath $uninstallRoot -ErrorAction SilentlyContinue | ForEach-Object {
+                $disp = $null
+                try { $disp = (Get-ItemProperty -LiteralPath $_.PSPath -Name DisplayName -ErrorAction SilentlyContinue).DisplayName } catch {}
+                if ($disp -and ($disp -match '(?i)\bwebex\b')) {
+                    Remove-RegKeySafe -KeyPath $_.PSPath -Context "HKCU Uninstall DisplayName match ($ContextLabel)"
+                }
+            }
+        }
+
+        $loadedHivePath = "Registry::HKEY_USERS\$Sid"
+        if (Test-Path -LiteralPath $loadedHivePath) {
+            & $removeInHive $loadedHivePath "SID $Sid (loaded hive)"
+            return
+        }
+
+        $ntUserDat = Join-Path $ProfilePath 'NTUSER.DAT'
+        if (-not (Test-Path -LiteralPath $ntUserDat)) {
+            Write-WebexLog ("NTUSER.DAT not found for SID {0} at {1}; skipping HKCU uninstall cleanup." -f $Sid, $ntUserDat) "WARN"
+            return
+        }
+
+        $tempName = "TempWebex_{0}" -f ($Sid -replace '[^A-Za-z0-9_]', '_')
+        $tempHive = "HKU\$tempName"
+        try {
+            Write-WebexLog ("Loading hive for SID {0} from {1} to {2}" -f $Sid, $ntUserDat, $tempHive)
+            & reg.exe load $tempHive $ntUserDat | Out-Null
+            $mountedHKU = "Registry::HKEY_USERS\$tempName"
+            & $removeInHive $mountedHKU "SID $Sid (temp hive)"
+        } catch {
+            Write-WebexLog ("Failed to load user hive for SID {0}: {1}" -f $Sid, $_.Exception.Message) "WARN"
+        } finally {
+            try {
+                Write-WebexLog ("Unloading hive {0} for SID {1}" -f $tempHive, $Sid)
+                & reg.exe unload $tempHive | Out-Null
+            } catch {
+                Write-WebexLog ("Failed to unload hive {0} for SID {1}: {2}" -f $tempHive, $Sid, $_.Exception.Message) "WARN"
+            }
+        }
+    }
+
+    # Enumerate user profiles (SID + Path)
+    $profileListKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
+    $profiles = Get-ChildItem $profileListKey | Where-Object {
+        $_.PSChildName -match '^S-1-5-21-' -and $_.PSChildName -notmatch '\.bak$'
+    } | ForEach-Object {
+        $sid  = $_.PSChildName
+        $path = (Get-ItemProperty $_.PsPath -Name ProfileImagePath -ErrorAction SilentlyContinue).ProfileImagePath
+        if ($path -and (Test-Path $path)) { [PSCustomObject]@{ Sid = $sid; Path = $path } }
+    }
+
+    foreach ($prof in $profiles) {
+        $sid = $prof.Sid
+        $profilePath = $prof.Path
+        $userName = Split-Path $profilePath -Leaf
+
+        Write-WebexLog ("--- Processing user: {0} (SID: {1})" -f $userName, $sid)
+
+        if ($KillProcesses) {
+            Stop-PerUserWebexProcesses -ProfilePath $profilePath -UserName $userName
+        }
+
+        if ($PurgeData) {
+            # AppData ONLY targets (includes AppData\Local\Programs\... which is still under AppData)
+            $pathsToRemove = @(
+                (Join-Path $profilePath 'AppData\Local\CiscoSpark'),
+                (Join-Path $profilePath 'AppData\Local\CiscoSparkLauncher'),
+                (Join-Path $profilePath 'AppData\Local\CiscoWebexLauncher'),
+                (Join-Path $profilePath 'AppData\Local\Programs\Cisco Webex'),
+                (Join-Path $profilePath 'AppData\Local\Programs\Cisco Spark'),
+                (Join-Path $profilePath 'AppData\Roaming\Cisco Webex')
+            )
+
+            foreach ($p in $pathsToRemove) {
+                Remove-PathSafe -Path $p -Context "AppData folder ($userName)"
+            }
+        }
+
+        Remove-WebexShortcutsForProfile -ProfilePath $profilePath -UserName $userName
+        Remove-WebexUninstallKeysFromUser -Sid $sid -ProfilePath $profilePath
+    }
+
+    Write-WebexLog "=== Webex per-user cleanup completed (AppData ONLY) ==="
+}
+
 # ========================================================
 #  CONDITIONAL EXECUTION (green = running, yellow = skipped)
 #  - These blocks merely orchestrate which product functions run.
@@ -2074,4 +2307,11 @@ if ($RunZoomCleanup) {
     Uninstall-ZoomFromAllUsers -KillProcesses -PurgeData
 } else {
     Write-Host "Variable 'RunZoomCleanup' is FALSE - skipping Zoom uninstall function." -ForegroundColor Yellow
+}
+
+if ($RunWebexCleanup) {
+    Write-Host "Variable 'RunWebexCleanup' is TRUE - executing Webex cleanup (AppData only)..." -ForegroundColor Green
+    Cleanup-WebexFromAllUsers -KillProcesses -PurgeData
+} else {
+    Write-Host "Variable 'RunWebexCleanup' is FALSE - skipping Webex cleanup." -ForegroundColor Yellow
 }
