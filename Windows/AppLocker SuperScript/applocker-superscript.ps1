@@ -47,6 +47,7 @@ EXAMPLES
     $RunGimpCleanup = $false
     $RunGitCleanup = $false
     $RunRefinitivCleanup = $false
+    $RunZoomCleanup = $false
     .\PerUserAppCleanup.ps1
 #>
 
@@ -60,6 +61,7 @@ $RunFirefoxCleanup     = $true   # TRUE => run Uninstall-FirefoxFromAllUsers
 $RunGimpCleanup        = $true   # TRUE => run Uninstall-GimpFromAllUsers
 $RunGitCleanup         = $true   # TRUE => run Uninstall-GitFromAllUsers
 $RunRefinitivCleanup   = $true   # TRUE => run Uninstall-RefinitivWorkspaceFromAllUsers
+$RunZoomCleanup        = $true   # TRUE => run Uninstall-ZoomFromAllUsers
 
 # ========================================================
 #  COLORIZED LOGGING HELPERS
@@ -188,6 +190,7 @@ function Uninstall-ChromeFromAllUsers {
         - Optionally deletes per-user Chrome data under %LocalAppData%\Google\Chrome.
         - Cleans broken per-user shortcuts (Desktop + Start Menu).
         - Removes per-user uninstall registry key from each user's hive.
+        - NEW: Deletes per-user folder: %LocalAppData%\Google (C:\Users\<user>\AppData\Local\Google) at the end.
         - Writes a detailed log under C:\ProgramData\AppLocker.
     .PARAMETER PurgeData
         When supplied, removes user data/config folders after uninstall (skipped automatically if a machine-wide Chrome install is detected).
@@ -209,19 +212,10 @@ function Uninstall-ChromeFromAllUsers {
     $LogFile   = Join-Path $LogFolder ("ChromeUninstall_{0}.log" -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
 
     if (-not (Test-Path $LogFolder)) {
-        # Ensure the log directory exists before first write
         New-Item -Path $LogFolder -ItemType Directory -Force | Out-Null
     }
 
     function Write-ChromeLog {
-        <#
-        .SYNOPSIS
-            Write Chrome-specific log entry to file and mirror to console with color.
-        .PARAMETER Message
-            Message text.
-        .PARAMETER Level
-            Optional hint for colorization (INFO/SUCCESS/WARN/ERROR).
-        #>
         param([string]$Message, [string]$Level = "INFO")
         $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
         $entry = "[$timestamp] [$Level] $Message"
@@ -235,7 +229,6 @@ function Uninstall-ChromeFromAllUsers {
 
     # ----------------------------
     # Verify admin rights
-    #   - Required for enumerating other users’ profiles and loading their hives.
     # ----------------------------
     $id = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($id)
@@ -245,8 +238,6 @@ function Uninstall-ChromeFromAllUsers {
 
     # ----------------------------
     # Helper: remove broken Chrome shortcuts (per-user only)
-    #   - Uses WScript.Shell to read .lnk targets and icon hints.
-    #   - Deletes ONLY when target does not exist.
     # ----------------------------
     function Remove-BrokenChromeShortcuts {
         param([string[]]$PathsToScan)
@@ -263,7 +254,6 @@ function Uninstall-ChromeFromAllUsers {
 
             Write-ChromeLog ("Scanning for broken Chrome shortcuts in: {0}" -f $scanPath)
 
-            # Recurse for *.lnk; ignore access errors to keep going.
             Get-ChildItem -Path $scanPath -Recurse -Include '*.lnk' -ErrorAction SilentlyContinue | ForEach-Object {
                 $lnk = $_
                 $targetPath = $null
@@ -278,14 +268,12 @@ function Uninstall-ChromeFromAllUsers {
                     return
                 }
 
-                # Heuristics to decide whether it's a Chrome shortcut.
                 $nameLooksChrome   = ($lnk.BaseName -match '(?i)chrome')
                 $targetLooksChrome = ($targetPath -and ($targetPath -match '(?i)\\Google\\Chrome\\Application\\chrome\.exe$'))
                 $iconLooksChrome   = ($iconInfo -and ($iconInfo -match '(?i)\\Google\\Chrome\\'))
 
                 if (-not ($nameLooksChrome -or $targetLooksChrome -or $iconLooksChrome)) { return }
 
-                # Delete only if the target no longer exists.
                 $targetExists = $false
                 if ([string]::IsNullOrWhiteSpace($targetPath)) {
                     $targetExists = $false
@@ -309,8 +297,6 @@ function Uninstall-ChromeFromAllUsers {
 
     # ----------------------------
     # Helper: delete per-user uninstall registry key for Chrome
-    #   - Works if the hive is already loaded (user logged in) or
-    #     loads NTUSER.DAT into a temp HKU\ mount, removes, then unloads.
     # ----------------------------
     function Remove-ChromeUninstallKeyFromUser {
         param(
@@ -319,7 +305,6 @@ function Uninstall-ChromeFromAllUsers {
         )
         $relKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Google Chrome'
 
-        # Branch 1: User hive already loaded => operate directly.
         $loadedHivePath = "Registry::HKEY_USERS\$Sid"
         if (Test-Path $loadedHivePath) {
             $fullKey = Join-Path $loadedHivePath $relKey
@@ -336,7 +321,6 @@ function Uninstall-ChromeFromAllUsers {
             return
         }
 
-        # Branch 2: User hive NOT loaded => mount NTUSER.DAT temporarily.
         $ntUserDat = Join-Path $ProfilePath 'NTUSER.DAT'
         if (-not (Test-Path $ntUserDat)) {
             Write-ChromeLog ("NTUSER.DAT not found for SID {0} at {1}; skipping registry cleanup." -f $Sid, $ntUserDat) "WARN"
@@ -364,7 +348,6 @@ function Uninstall-ChromeFromAllUsers {
         } catch {
             Write-ChromeLog ("Failed to load user hive for SID {0}: {1}" -f $Sid, $_.Exception.Message) "WARN"
         } finally {
-            # Always attempt to unload the mounted hive to avoid handle leaks.
             try {
                 Write-ChromeLog ("Unloading hive {0} for SID {1}" -f $tempHive, $Sid)
                 & reg.exe unload $tempHive | Out-Null
@@ -375,8 +358,41 @@ function Uninstall-ChromeFromAllUsers {
     }
 
     # ----------------------------
+    # NEW Helper: permanently delete per-user Local\Google folder
+    # ----------------------------
+    function Remove-UserLocalGoogleFolder {
+        param(
+            [Parameter(Mandatory)][string]$ProfilePath,
+            [Parameter(Mandatory)][string]$UserName
+        )
+
+        $googleLocalRoot = Join-Path $ProfilePath 'AppData\Local\Google'
+
+        if (-not (Test-Path -LiteralPath $googleLocalRoot)) {
+            Write-ChromeLog ("Local Google folder not present for {0}: '{1}'" -f $UserName, $googleLocalRoot)
+            return
+        }
+
+        try {
+            Write-ChromeLog ("Deleting per-user folder permanently for {0}: '{1}'" -f $UserName, $googleLocalRoot) "WARN"
+
+            # Normalize file attributes to reduce access/readonly issues
+            Get-ChildItem -LiteralPath $googleLocalRoot -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+                try { $_.Attributes = 'Normal' } catch {}
+            }
+            try { (Get-Item -LiteralPath $googleLocalRoot -Force).Attributes = 'Normal' } catch {}
+
+            # Permanent delete (not Recycle Bin)
+            Remove-Item -LiteralPath $googleLocalRoot -Recurse -Force -ErrorAction Stop
+
+            Write-ChromeLog ("Deleted '{0}' successfully for {1}." -f $googleLocalRoot, $UserName) "SUCCESS"
+        } catch {
+            Write-ChromeLog ("Failed to delete '{0}' for {1}: {2}" -f $googleLocalRoot, $UserName, $_.Exception.Message) "WARN"
+        }
+    }
+
+    # ----------------------------
     # Optional: stop ONLY per-user Chrome processes
-    #   - Pattern matches chrome.exe paths under %LocalAppData% to avoid touching machine-wide installs.
     # ----------------------------
     if ($KillProcesses) {
         Write-ChromeLog "Evaluating running chrome.exe processes. Will only close AppData-based Chrome."
@@ -389,7 +405,6 @@ function Uninstall-ChromeFromAllUsers {
             $targets = @(); $skipped = @()
 
             foreach ($p in $allChrome) {
-                # Accessing MainModule can throw on protected/system processes; guard with try/catch.
                 $exePath = $null
                 try {
                     $exePath = $p.Path
@@ -415,7 +430,6 @@ function Uninstall-ChromeFromAllUsers {
                 }
             } else { Write-ChromeLog "No AppData-based Chrome processes found to stop." }
 
-            # Log skipped processes so operators can see why some remained running.
             if ($skipped.Count -gt 0) {
                 foreach ($s in $skipped) {
                     if ($s.Path) {
@@ -439,7 +453,6 @@ function Uninstall-ChromeFromAllUsers {
 
     # ----------------------------
     # Enumerate user profiles (collect SID + Path)
-    #   - Filters out .bak hives and non-user SIDs.
     # ----------------------------
     $profileListKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
     $profiles = Get-ChildItem $profileListKey | Where-Object {
@@ -458,20 +471,17 @@ function Uninstall-ChromeFromAllUsers {
 
         $appDir = Join-Path $profilePath 'AppData\Local\Google\Chrome\Application'
         if (Test-Path $appDir) {
-            # Locate Chrome per-user uninstaller: setup.exe under \Application\<ver>\Installer\setup.exe
             $setup = Get-ChildItem -Path (Join-Path $appDir '*\Installer\setup.exe') -File -ErrorAction SilentlyContinue |
                      Sort-Object FullName -Descending | Select-Object -First 1
 
             if ($setup) {
                 Write-ChromeLog ("Running uninstaller for {0}..." -f $userName)
-                # --force-uninstall avoids prompts and ensures removal of per-user binaries.
                 Start-Process -FilePath $setup.FullName -ArgumentList '--uninstall','--force-uninstall' -Wait -WindowStyle Hidden
             } else {
                 Write-ChromeLog ("No setup.exe found for {0}. Performing cleanup." -f $userName)
             }
 
             if ($PurgeData -and -not $chromeMachineInstall) {
-                # Remove residual per-user data/configuration if requested.
                 $chromeBase = Join-Path $profilePath 'AppData\Local\Google\Chrome'
                 if (Test-Path $chromeBase) {
                     Remove-Item $chromeBase -Recurse -Force -ErrorAction SilentlyContinue
@@ -491,11 +501,12 @@ function Uninstall-ChromeFromAllUsers {
 
         # --- Per-user registry uninstall key cleanup (HKCU for this user) ---
         Remove-ChromeUninstallKeyFromUser -Sid $sid -ProfilePath $profilePath
+
+        # --- NEW: Final cleanup - delete C:\Users\<user>\AppData\Local\Google ---
+        Remove-UserLocalGoogleFolder -ProfilePath $profilePath -UserName $userName
     }
 
-    # NOTE: Intentionally NOT touching Public Desktop or All Users Start Menu per request.
-
-    Write-ChromeLog "=== Uninstallation, per-user shortcut cleanup, and registry cleanup completed ==="
+    Write-ChromeLog "=== Uninstallation, per-user shortcut cleanup, registry cleanup, and Local\Google deletion completed ==="
 }
 
 # ========================================================
@@ -1793,6 +1804,231 @@ function Uninstall-RefinitivWorkspaceFromAllUsers {
     Write-RefinitivLog "=== Refinitiv Workspace uninstallation, shortcut cleanup, and registry cleanup completed ==="
 }
 
+function Uninstall-ZoomFromAllUsers {
+    <#
+    .SYNOPSIS
+        Silently uninstalls per-user (AppData-based) Zoom from all local user profiles.
+    .DESCRIPTION
+        - Enumerates local profiles from HKLM:\...\ProfileList (S-1-5-21-*).
+        - Optionally stops ONLY per-user Zoom processes (based on executable path under the user profile).
+        - Attempts to locate and run a per-user Zoom uninstaller silently.
+        - Performs best-effort cleanup of per-user Zoom folders after uninstall.
+        - Logs to C:\ProgramData\AppLocker\ZoomUninstall_yyyyMMdd_HHmmss.log
+    .PARAMETER KillProcesses
+        Stop ONLY per-user Zoom-related processes before uninstall.
+    .PARAMETER PurgeData
+        Remove per-user Zoom folders after uninstall (AppData\Roaming\Zoom and AppData\Local\Zoom).
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [switch]$KillProcesses,
+        [switch]$PurgeData
+    )
+
+    $LogFolder = "C:\ProgramData\AppLocker"
+    $LogFile   = Join-Path $LogFolder ("ZoomUninstall_{0}.log" -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+    if (-not (Test-Path $LogFolder)) {
+        New-Item -Path $LogFolder -ItemType Directory -Force | Out-Null
+    }
+
+    function Write-ZoomLog {
+        param([string]$Message, [string]$Level = "INFO")
+        $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+        $entry = "[$timestamp] [$Level] $Message"
+        Add-Content -Path $LogFile -Value $entry
+        $color = Get-LogForegroundColor -Message $Message -Level $Level
+        if ($color) { Write-Host $entry -ForegroundColor $color } else { Write-Host $entry }
+    }
+
+    Write-ZoomLog "=== Starting Zoom per-user uninstall for all users ==="
+    Write-ZoomLog ("Log file: {0}" -f $LogFile)
+
+    $id = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($id)
+    if (-not $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+        throw "This function must be run as Administrator."
+    }
+
+    function Stop-PerUserZoomProcesses {
+        param([string]$ProfilePath, [string]$UserName)
+
+        $escapedProfile = [Regex]::Escape($ProfilePath.TrimEnd('\'))
+        $zoomPathRegex  = "(?i)^$escapedProfile\\AppData\\(Roaming|Local)\\Zoom\\"
+
+        Write-ZoomLog ("Checking for running Zoom processes for {0} (per-user path only)..." -f $UserName)
+
+        $all = @()
+        try { $all = Get-Process -ErrorAction Stop } catch { $all = @() }
+
+        $targets = @()
+        foreach ($p in $all) {
+            $exePath = $null
+            try {
+                $exePath = $p.Path
+                if (-not $exePath) { $exePath = $p.MainModule.FileName }
+            } catch { $exePath = $null }
+
+            if ($exePath -and ($exePath -match $zoomPathRegex)) {
+                $targets += [PSCustomObject]@{ Id = $p.Id; Name = $p.Name; Path = $exePath }
+            }
+        }
+
+        if (-not $targets -or $targets.Count -eq 0) {
+            Write-ZoomLog ("No per-user Zoom processes found for {0}." -f $UserName)
+            return
+        }
+
+        foreach ($t in $targets) {
+            Write-ZoomLog ("Stopping per-user Zoom process for {0}: {1} (PID {2}) '{3}'" -f $UserName, $t.Name, $t.Id, $t.Path)
+            try {
+                Stop-Process -Id $t.Id -Force -ErrorAction Stop
+                Write-ZoomLog ("Stopped PID {0} successfully." -f $t.Id) "SUCCESS"
+            } catch {
+                Write-ZoomLog ("Failed to stop PID {0}: {1}" -f $t.Id, $_.Exception.Message) "WARN"
+            }
+        }
+    }
+
+    function Get-ZoomUninstallerForProfile {
+        param([string]$ProfilePath)
+
+        $candidates = @(
+            (Join-Path $ProfilePath 'AppData\Roaming\Zoom\uninstall\Installer.exe'),
+            (Join-Path $ProfilePath 'AppData\Roaming\Zoom\bin\Installer.exe'),
+            (Join-Path $ProfilePath 'AppData\Roaming\Zoom\ZoomInstaller.exe'),
+            (Join-Path $ProfilePath 'AppData\Roaming\Zoom\ZoomInstallerFull.exe'),
+            (Join-Path $ProfilePath 'AppData\Local\Zoom\uninstall\Installer.exe'),
+            (Join-Path $ProfilePath 'AppData\Local\Zoom\bin\Installer.exe'),
+            (Join-Path $ProfilePath 'AppData\Local\Zoom\ZoomInstaller.exe'),
+            (Join-Path $ProfilePath 'AppData\Local\Zoom\ZoomInstallerFull.exe')
+        )
+
+        foreach ($c in $candidates) {
+            if (Test-Path -LiteralPath $c) { return $c }
+        }
+
+        $zoomRoots = @(
+            (Join-Path $ProfilePath 'AppData\Roaming\Zoom'),
+            (Join-Path $ProfilePath 'AppData\Local\Zoom')
+        ) | Where-Object { $_ -and (Test-Path $_) }
+
+        foreach ($root in $zoomRoots) {
+            try {
+                $found = Get-ChildItem -Path $root -Recurse -File -ErrorAction SilentlyContinue |
+                         Where-Object { $_.Name -match '^(?i)(Installer\.exe|ZoomInstaller.*\.exe|unins.*\.exe|uninstall.*\.exe)$' } |
+                         Sort-Object LastWriteTime -Descending |
+                         Select-Object -First 1
+                if ($found) { return $found.FullName }
+            } catch {}
+        }
+
+        return $null
+    }
+
+    function Invoke-ZoomSilentUninstall {
+        param([string]$UninstallerPath, [string]$UserName)
+
+        $argSets = @(
+            @('/uninstall','/silent'),
+            @('/uninstall','/quiet'),
+            @('/uninstall','/S'),
+            @('--uninstall','--silent'),
+            @('/remove','/silent'),
+            @('/S')
+        )
+
+        foreach ($args in $argSets) {
+            try {
+                Write-ZoomLog ("Attempting Zoom uninstall for {0} using '{1}' args: {2}" -f $UserName, $UninstallerPath, ($args -join ' '))
+                $p = Start-Process -FilePath $UninstallerPath -ArgumentList $args -Wait -PassThru -WindowStyle Hidden -ErrorAction Stop
+
+                if ($p.ExitCode -eq 0) {
+                    Write-ZoomLog ("Zoom uninstaller exited with code 0 for {0}." -f $UserName) "SUCCESS"
+                    return $true
+                } else {
+                    Write-ZoomLog ("Zoom uninstaller exit code for {0}: {1} (args: {2})" -f $UserName, $p.ExitCode, ($args -join ' ')) "WARN"
+                }
+            } catch {
+                Write-ZoomLog ("Failed running uninstaller for {0} (args: {1}): {2}" -f $UserName, ($args -join ' '), $_.Exception.Message) "WARN"
+            }
+        }
+
+        return $false
+    }
+
+    function Remove-PerUserZoomFolders {
+        param([string]$ProfilePath, [string]$UserName)
+
+        $pathsToRemove = @(
+            (Join-Path $ProfilePath 'AppData\Roaming\Zoom'),
+            (Join-Path $ProfilePath 'AppData\Local\Zoom')
+        )
+
+        foreach ($p in $pathsToRemove) {
+            if (-not (Test-Path -LiteralPath $p)) { continue }
+
+            try {
+                Write-ZoomLog ("Deleting leftover Zoom folder for {0}: '{1}'" -f $UserName, $p) "WARN"
+
+                Get-ChildItem -LiteralPath $p -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+                    try { $_.Attributes = 'Normal' } catch {}
+                }
+                try { (Get-Item -LiteralPath $p -Force).Attributes = 'Normal' } catch {}
+
+                Remove-Item -LiteralPath $p -Recurse -Force -ErrorAction Stop
+                Write-ZoomLog ("Deleted '{0}' successfully for {1}." -f $p, $UserName) "SUCCESS"
+            } catch {
+                Write-ZoomLog ("Failed to delete '{0}' for {1}: {2}" -f $p, $UserName, $_.Exception.Message) "WARN"
+            }
+        }
+    }
+
+    $profileListKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
+    $profiles = Get-ChildItem $profileListKey | Where-Object {
+        $_.PSChildName -match '^S-1-5-21-' -and $_.PSChildName -notmatch '\.bak$'
+    } | ForEach-Object {
+        $sid  = $_.PSChildName
+        $path = (Get-ItemProperty $_.PsPath -Name ProfileImagePath -ErrorAction SilentlyContinue).ProfileImagePath
+        if ($path -and (Test-Path $path)) { [PSCustomObject]@{ Sid = $sid; Path = $path } }
+    }
+
+    foreach ($prof in $profiles) {
+        $profilePath = $prof.Path
+        $userName = Split-Path $profilePath -Leaf
+
+        Write-ZoomLog ("Processing user: {0} (Profile: {1})" -f $userName, $profilePath)
+
+        $zoomRootRoam = Join-Path $profilePath 'AppData\Roaming\Zoom'
+        $zoomRootLoc  = Join-Path $profilePath 'AppData\Local\Zoom'
+
+        if (-not (Test-Path $zoomRootRoam) -and -not (Test-Path $zoomRootLoc)) {
+            Write-ZoomLog ("No per-user Zoom folder found for {0}. Skipping." -f $userName)
+            continue
+        }
+
+        if ($KillProcesses) {
+            Stop-PerUserZoomProcesses -ProfilePath $profilePath -UserName $userName
+        }
+
+        $uninstaller = Get-ZoomUninstallerForProfile -ProfilePath $profilePath
+        if ($uninstaller) {
+            $ok = Invoke-ZoomSilentUninstall -UninstallerPath $uninstaller -UserName $userName
+            if (-not $ok) {
+                Write-ZoomLog ("Zoom uninstall may not have completed cleanly for {0}. Will proceed with cleanup if requested." -f $userName) "WARN"
+            }
+        } else {
+            Write-ZoomLog ("No Zoom uninstaller found for {0}. Will proceed with cleanup if requested." -f $userName) "WARN"
+        }
+
+        if ($PurgeData) {
+            Remove-PerUserZoomFolders -ProfilePath $profilePath -UserName $userName
+        }
+    }
+
+    Write-ZoomLog "=== Zoom per-user uninstall completed ==="
+}
+
 # ========================================================
 #  CONDITIONAL EXECUTION (green = running, yellow = skipped)
 #  - These blocks merely orchestrate which product functions run.
@@ -1831,4 +2067,11 @@ if ($RunRefinitivCleanup) {
     Uninstall-RefinitivWorkspaceFromAllUsers -KillProcesses -PurgeData
 } else {
     Write-Host "Variable 'RunRefinitivCleanup' is FALSE - skipping Refinitiv Workspace uninstall function." -ForegroundColor Yellow
+}
+
+if ($RunZoomCleanup) {
+    Write-Host "Variable 'RunZoomCleanup' is TRUE - executing Zoom uninstall function..." -ForegroundColor Green
+    Uninstall-ZoomFromAllUsers -KillProcesses -PurgeData
+} else {
+    Write-Host "Variable 'RunZoomCleanup' is FALSE - skipping Zoom uninstall function." -ForegroundColor Yellow
 }
