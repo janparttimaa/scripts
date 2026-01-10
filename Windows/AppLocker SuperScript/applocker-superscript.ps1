@@ -2247,6 +2247,7 @@ function Cleanup-WebexFromAllUsers {
                 (Join-Path $profilePath 'AppData\Local\CiscoWebexLauncher'),
                 (Join-Path $profilePath 'AppData\Local\Programs\Cisco Webex'),
                 (Join-Path $profilePath 'AppData\Local\Programs\Cisco Spark'),
+                (Join-Path $profilePath 'AppData\Local\Webex'),
                 (Join-Path $profilePath 'AppData\Roaming\Cisco Webex')
             )
 
