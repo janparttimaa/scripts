@@ -1,1 +1,1 @@
-# Microsoft 365 Apps - Accept All EULAs
+# Microsoft 365 Apps - Accept all EULAs

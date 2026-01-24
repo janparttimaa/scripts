@@ -1,1 +1,1 @@
-# Windows Hello For Business - Forbid The Use Of External Cameras For Windows Hello Face Sign-in
+# Windows Hello for Business - Forbid the use of external cameras for Windows Hello face sign-in

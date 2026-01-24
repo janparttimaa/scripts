@@ -1,1 +1,1 @@
-# Point and Print - RPC Authentication Level Privacy For Printing
+# Point and Print - RPC authentication level Privacy for printing

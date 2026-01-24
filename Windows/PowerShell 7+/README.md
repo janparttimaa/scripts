@@ -1,1 +1,1 @@
-# PowerShell 7+ - Update Through Microsoft Update (MU), WSUS, Or Configuration Manager
+# PowerShell 7+ - Update through Microsoft Update (MU), WSUS, or Configuration Manager
