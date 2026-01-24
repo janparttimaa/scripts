@@ -22,7 +22,7 @@
         0 = Disabled -> Allow saving encrypted pages to disk (Recommended)
 
 .VERSION
-    20251224
+    20260124
 
 .AUTHOR
     Jan Parttimaa
