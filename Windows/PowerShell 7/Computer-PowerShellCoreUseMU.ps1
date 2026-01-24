@@ -22,7 +22,7 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20260124 - Modified to configure PowerShellCore UseMU registry value
+    20260124 - Initial release
 
 .EXAMPLE
     Run the following command with administrative privileges:

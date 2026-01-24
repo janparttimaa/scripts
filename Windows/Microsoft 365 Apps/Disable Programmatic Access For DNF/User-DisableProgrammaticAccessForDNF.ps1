@@ -30,7 +30,7 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20260124 - Modified to set DisableProgrammaticAccessForDNF
+    20260124 - Initial release
 
 .EXAMPLE
     Run the following command with your non administrative user rights:

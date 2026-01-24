@@ -36,7 +36,7 @@
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-ShowGlobalPrompts.ps1"
+    powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-ShowGlobalPrompts.ps1"
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune or Microsoft Configuration Manager.
