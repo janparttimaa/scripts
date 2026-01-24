@@ -1,17 +1,17 @@
 <#
 .SYNOPSIS
-    Allows Azure AD / Entra ID Workplace Join on Windows devices.
+    Forbids the use of external cameras for Windows Hello Face sign-in.
 
 .DESCRIPTION
-    This PowerShell script allows Azure AD / Entra ID Workplace Join by disabling the
-    BlockAADWorkplaceJoin policy in the Windows registry.
+    This PowerShell script disables the use of external cameras for
+    Windows Hello Face by setting the ShouldForbidExternalCameras
+    registry value to 1.
 
-    More information: 
-    https://learn.microsoft.com/en-us/entra/identity/devices/hybrid-join-plan
+    This setting enforces that only built-in cameras can be used
+    for Windows Hello Face authentication.
 
-    The script creates the required registry key if it does not exist,
-    sets the BlockAADWorkplaceJoin value to 0 (disabled),
-    and verifies the configuration was applied successfully.
+    More information:
+    https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/windows-hello-face-authentication
 
 .VERSION
     20260124
@@ -32,10 +32,10 @@
 .EXAMPLE
     Run the following command with administrative privileges:
 
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "AllowAADWorkplaceJoin.ps1"
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "Computer-ForbidExternalCamerasFaceLogon.ps1"
     
     This is the recommended execution method when deploying the script via
-    Microsoft Intune, or Microsoft Configuration Manager.
+    Microsoft Intune or Microsoft Configuration Manager.
 #>
 
 # Ensure the script is running as Administrator
@@ -47,16 +47,16 @@ If (-not ([Security.Principal.WindowsPrincipal] `
 }
 
 # Registry path and value
-$RegPath       = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WorkplaceJoin"
-$ValueName     = "BlockAADWorkplaceJoin"
-$ExpectedValue = 0
+$RegPath       = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\FaceLogon"
+$ValueName     = "ShouldForbidExternalCameras"
+$ExpectedValue = 1
 
 # Create the registry key if it does not exist
 If (-not (Test-Path $RegPath)) {
     New-Item -Path $RegPath -Force | Out-Null
 }
 
-# Disable the policy by setting the DWORD value to 0
+# Set the DWORD value
 New-ItemProperty -Path $RegPath -Name $ValueName -PropertyType DWord -Value $ExpectedValue -Force | Out-Null
 
 # Final verification check
@@ -64,7 +64,7 @@ Try {
     $ActualValue = (Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop).$ValueName
 
     If ($ActualValue -eq $ExpectedValue) {
-        Write-Output "SUCCESS: $ValueName is set to $ActualValue (Workplace Join allowed)."
+        Write-Output "SUCCESS: $ValueName is set to $ActualValue (External cameras forbidden for Face Logon)."
         Exit 0
     }
     Else {
