@@ -31,10 +31,16 @@
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-DisableAutoDetect.ps1"
+    powershell.exe -ExecutionPolicy Bypass -File .\User-DisableAutoDetect.ps1
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune or Microsoft Configuration Manager.
+    
+    Note:
+    If you deploy this as an application via Microsoft Intune, use this installation command instead:
+    
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-DisableAutoDetect.ps1"
+    
 #>
 
 # Registry path and value

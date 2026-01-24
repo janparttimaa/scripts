@@ -1,16 +1,16 @@
 <#
 .SYNOPSIS
-    Allows Azure AD / Entra ID Workplace Join on Windows devices.
+    Blocks Azure AD / Entra ID Workplace Join on Windows devices.
 
 .DESCRIPTION
-    This PowerShell script allows Azure AD / Entra ID Workplace Join by disabling the
-    BlockAADWorkplaceJoin policy in the Windows registry.
+    This PowerShell script prevents Azure AD / Entra ID Workplace Join by enabling
+    the BlockAADWorkplaceJoin policy in the Windows registry.
 
     More information: 
     https://learn.microsoft.com/en-us/entra/identity/devices/hybrid-join-plan
 
     The script creates the required registry key if it does not exist,
-    sets the BlockAADWorkplaceJoin value to 0 (disabled),
+    sets the BlockAADWorkplaceJoin value to 1 (enabled),
     and verifies the configuration was applied successfully.
 
 .VERSION
@@ -32,10 +32,16 @@
 .EXAMPLE
     Run the following command with administrative privileges:
 
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "Computer-AllowAADWorkplaceJoin.ps1"
+    powershell.exe -ExecutionPolicy Bypass -File .\Computer-BlockAADWorkplaceJoin.ps1
     
     This is the recommended execution method when deploying the script via
     Microsoft Intune, or Microsoft Configuration Manager.
+
+    Note:
+    If you deploy this as an application via Microsoft Intune, use this installation command instead:
+    
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "Computer-BlockAADWorkplaceJoin.ps1"
+    
 #>
 
 # Ensure the script is running as Administrator
@@ -49,14 +55,14 @@ If (-not ([Security.Principal.WindowsPrincipal] `
 # Registry path and value
 $RegPath       = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WorkplaceJoin"
 $ValueName     = "BlockAADWorkplaceJoin"
-$ExpectedValue = 0
+$ExpectedValue = 1
 
 # Create the registry key if it does not exist
 If (-not (Test-Path $RegPath)) {
     New-Item -Path $RegPath -Force | Out-Null
 }
 
-# Disable the policy by setting the DWORD value to 0
+# Set the DWORD value (one-liner)
 New-ItemProperty -Path $RegPath -Name $ValueName -PropertyType DWord -Value $ExpectedValue -Force | Out-Null
 
 # Final verification check
@@ -64,7 +70,7 @@ Try {
     $ActualValue = (Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop).$ValueName
 
     If ($ActualValue -eq $ExpectedValue) {
-        Write-Output "SUCCESS: $ValueName is set to $ActualValue (Workplace Join allowed)."
+        Write-Output "SUCCESS: $ValueName is set to $ActualValue (Workplace Join blocked)."
         Exit 0
     }
     Else {

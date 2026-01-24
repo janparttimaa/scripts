@@ -31,10 +31,16 @@
 .EXAMPLE
     Run the following command with administrative privileges:
 
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "Computer-DisableWinHttpWpad.ps1"
+    powershell.exe -ExecutionPolicy Bypass -File .\Computer-DisableWinHttpWpad.ps1
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune or Microsoft Configuration Manager.
+    
+    Note:
+    If you deploy this as an application via Microsoft Intune, use this installation command instead:
+    
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "Computer-DisableWinHttpWpad.ps1"
+    
 #>
 
 # Ensure the script is running as Administrator
