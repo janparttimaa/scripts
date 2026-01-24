@@ -40,7 +40,7 @@
 .EXAMPLE
     Run the following command with administrative privileges:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\DisableCachingOfSSLPages.ps1
+    powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "DisableCachingOfSSLPages.ps1"
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune, or Microsoft Configuration Manager.
