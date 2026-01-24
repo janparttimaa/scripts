@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Shows file name extensions for the current user via registry policy.
+    Show file name extensions for the current user via registry policy.
 
 .DESCRIPTION
     This PowerShell script configures the HideFileExt registry value under the
