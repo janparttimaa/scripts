@@ -14,25 +14,25 @@
     and verifies the configuration was applied successfully.
 
 .VERSION
-    20251224
+    20260124
 
 .AUTHOR
     Jan Parttimaa
 
 .COPYRIGHT
-    © 2025 Jan Parttimaa. All rights reserved.
+    © 2026 Jan Parttimaa. All rights reserved.
 
 .LICENSE
     This script is licensed under the MIT License.
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20251224 - Initial release
+    20260124 - Initial release
 
 .EXAMPLE
     Run the following command with administrative privileges:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\BlockAADWorkplaceJoin.ps1
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "BlockAADWorkplaceJoin.ps1"
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune, or Microsoft Configuration Manager.
