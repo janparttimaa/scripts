@@ -1,14 +1,14 @@
 <#
 .SYNOPSIS
-    Accepts all Microsoft 365 Apps EULAs for the current user via registry policy.
+    Sets Microsoft 365 Apps default file format to Office Open XML formats for the current user via registry policy.
 
 .DESCRIPTION
-    This PowerShell script configures the AcceptAllEulas registry value under the
-    Microsoft 365 Apps (Office 16.0) Registration key in HKCU.
+    This PowerShell script configures the ShownFileFmtPrompt registry value under the
+    Microsoft 365 Apps (Office 16.0) Common\General key in HKCU.
 
     Registry:
-    - Key Path:   HKCU\Software\Microsoft\Office\16.0\Registration
-    - Value name: AcceptAllEulas
+    - Key Path:   HKCU\Software\Microsoft\Office\16.0\Common\General
+    - Value name: ShownFileFmtPrompt
     - Value type: REG_DWORD
     - Value data: 1
 
@@ -31,15 +31,15 @@
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-AcceptAllEulas.ps1"
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-ShownFileFmtPrompt.ps1"
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune or Microsoft Configuration Manager.
 #>
 
 # Registry path and value
-$RegPath = "HKCU:\Software\Microsoft\Office\16.0\Registration"
-$ValueName = "AcceptAllEulas"
+$RegPath = "HKCU:\Software\Microsoft\Office\16.0\Common\General"
+$ValueName = "ShownFileFmtPrompt"
 $ExpectedValue = 1
 
 # Create the registry key if it does not exist
@@ -55,7 +55,7 @@ Try {
     $ActualValue = (Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop).$ValueName
 
     If ($ActualValue -eq $ExpectedValue) {
-        Write-Output "SUCCESS: $ValueName is set to $ActualValue (Microsoft 365 Apps EULAs accepted for current user)."
+        Write-Output "SUCCESS: $ValueName is set to $ActualValue (Default file type set to Office Open XML formats for current user)."
         Exit 0
     }
     Else {
