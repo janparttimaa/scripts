@@ -18,28 +18,33 @@
     https://sparxsystems.com/downloads/whitepapers/EA_Deployment.pdf
 
 .VERSION
-    20251224
+    20260125
 
 .AUTHOR
     Jan Parttimaa
 
 .COPYRIGHT
-    © 2025 Jan Parttimaa. All rights reserved.
+    © 2026 Jan Parttimaa. All rights reserved.
 
 .LICENSE
     This script is licensed under the MIT License.
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20251224 - Initial release
+    20260125 - Initial release
 
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\AutoCheckoutEx.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\User-AutoCheckoutEx.ps1
 
     This is the recommended execution method when deploying the script via
     Microsoft Intune, or Microsoft Configuration Manager.
+
+    Note:
+    If you deploy this as an application via Microsoft Intune, use this installation command instead:
+    
+    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-AutoCheckoutEx.ps1"
 
 #>
 
