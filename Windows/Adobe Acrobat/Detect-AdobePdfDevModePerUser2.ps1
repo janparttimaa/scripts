@@ -2,9 +2,12 @@
 .SYNOPSIS
   Intune detection script: verifies HKCU\Printers\DevModePerUser "Adobe PDF" REG_BINARY equals expected DevMode blob.
 
+.OUTPUTS
+  Writes "Compliant" or "Not compliant" (plus a short reason) to STDOUT.
+
 .NOTES
-  Exit 0 = detected (value exists and matches exactly)
-  Exit 1 = not detected (missing or mismatch)
+  Exit 0 = compliant (detected)
+  Exit 1 = not compliant
 #>
 
 $ErrorActionPreference = "Stop"
@@ -12,7 +15,6 @@ $ErrorActionPreference = "Stop"
 $RegPath   = "HKCU:\Printers\DevModePerUser"
 $ValueName = "Adobe PDF"
 
-# Expected .reg-style payload (must match exactly)
 $RegPayload = @'
 [HKEY_CURRENT_USER\Printers\DevModePerUser]
 "Adobe PDF"=hex:41,00,64,00,6f,00,62,00,65,00,20,00,50,00,44,00,46,00,00,00,00,\
@@ -70,8 +72,6 @@ $RegPayload = @'
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,01,00,00,00
 '@
 
@@ -85,9 +85,9 @@ function Convert-RegHexToByteArray {
     if (-not $m.Success) { throw "Could not locate 'hex:' payload in RegText." }
 
     $hexBlob = $m.Groups['hex'].Value
-    $hexBlob = $hexBlob -replace '\\', ''     # remove .reg line continuations
-    $hexBlob = $hexBlob -replace '\s+', ''    # remove whitespace
-    $hexBlob = $hexBlob -replace '[^0-9a-fA-F,]', '' # defensive
+    $hexBlob = $hexBlob -replace '\\', ''          # remove .reg line continuations
+    $hexBlob = $hexBlob -replace '\s+', ''         # remove whitespace
+    $hexBlob = $hexBlob -replace '[^0-9a-fA-F,]', ''# defensive
 
     $parts = $hexBlob.Split(',', [System.StringSplitOptions]::RemoveEmptyEntries)
     if ($parts.Count -lt 1) { throw "Hex payload parsed to zero bytes." }
@@ -99,25 +99,36 @@ function Convert-RegHexToByteArray {
     return $bytes
 }
 
+function NotCompliant([string]$Reason) {
+    Write-Output "Not compliant: $Reason"
+    exit 1
+}
+
 try {
     $ExpectedData = Convert-RegHexToByteArray -RegText $RegPayload
 
-    if (-not (Test-Path $RegPath)) { exit 1 }
+    if (-not (Test-Path $RegPath)) { NotCompliant "Registry key not found ($RegPath)." }
 
     $props = Get-ItemProperty -Path $RegPath -ErrorAction Stop
-    if (-not ($props.PSObject.Properties.Name -contains $ValueName)) { exit 1 }
+    if (-not ($props.PSObject.Properties.Name -contains $ValueName)) { NotCompliant "Value not found ('$ValueName')." }
 
     $ActualData = $props.$ValueName
-    if ($null -eq $ActualData) { exit 1 }
+    if ($null -eq $ActualData) { NotCompliant "Value is null ('$ValueName')." }
 
-    # Exact compare: length + byte-for-byte
-    if ($ActualData.Length -ne $ExpectedData.Length) { exit 1 }
-    for ($i = 0; $i -lt $ExpectedData.Length; $i++) {
-        if ($ActualData[$i] -ne $ExpectedData[$i]) { exit 1 }
+    if ($ActualData.Length -ne $ExpectedData.Length) {
+        NotCompliant "Length mismatch. Expected $($ExpectedData.Length) bytes, got $($ActualData.Length) bytes."
     }
 
+    for ($i = 0; $i -lt $ExpectedData.Length; $i++) {
+        if ($ActualData[$i] -ne $ExpectedData[$i]) {
+            NotCompliant "Data mismatch at byte index $i (expected 0x{0:X2}, got 0x{1:X2})." -f $ExpectedData[$i], $ActualData[$i]
+        }
+    }
+
+    Write-Output "Compliant: '$ValueName' matches expected data in $RegPath ($($ActualData.Length) bytes)."
     exit 0
 }
 catch {
+    Write-Output "Not compliant: $($_.Exception.Message)"
     exit 1
 }
