@@ -1,24 +1,27 @@
 <#
 .SYNOPSIS
-  Intune Detection Script: EA64 AutoCheckoutEx (per-user)
+    Detection method for installation script "User-AutoCheckoutEx.ps1"
 
 .DESCRIPTION
-  Detects whether REG_BINARY AutoCheckoutEx under:
-  HKCU\SOFTWARE\Sparx Systems\EA64\EA\OPTIONS
-  matches the expected bytes.
+    Detects whether REG_BINARY AutoCheckoutEx under:
+    HKCU\SOFTWARE\Sparx Systems\EA64\EA\OPTIONS
+    matches the expected bytes.
 
-  Intune logic:
-    - Exit 0 => Detected / Compliant
-    - Exit 1 => Not detected / Non-compliant
+    Intune logic:
+        - Exit 0 -> Detected / Compliant
+        - Exit 1 -> Not detected / Non-compliant
 
-  Manual run:
-    - Writes a clear compliance message to output.
+    Manual run:
+        - Writes a clear compliance message to output.
+    
+    More information:
+    https://github.com/janparttimaa/scripts/tree/main/Windows/Sparx%20Enterprise%20Architect
 
 .VERSION
-  20260125
+    20260125
 
 .AUTHOR
-  Jan Parttimaa
+    Jan Parttimaa
 
 .COPYRIGHT
     © 2026 Jan Parttimaa. All rights reserved.
