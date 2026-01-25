@@ -1,58 +1,19 @@
 <#
 .SYNOPSIS
-    Deploys a per-user printer DevMode blob for "Adobe PDF".
+    Intune Detection Script - Checks per-user DevModePerUser blob for "Adobe PDF"
 
 .DESCRIPTION
-    This PowerShell script creates/updates the DevModePerUser registry value
-    for the "Adobe PDF" printer under the current user hive.
-
-    It writes the provided REG_BINARY data to:
-    HKCU\Printers\DevModePerUser
-
-    The setting applies per user and does not require administrative
-    privileges to run.
-
-    More information:
-    https://helpx.adobe.com/acrobat/kb/fix-pdf-conversion-font-errors.html
-
-.VERSION
-    20260125
-
-.AUTHOR
-    Jan Parttimaa
-
-.COPYRIGHT
-    © 2026 Jan Parttimaa. All rights reserved.
-
-.LICENSE
-    This script is licensed under the MIT License.
-    You may obtain a copy of the License at https://opensource.org/licenses/MIT
-
-.RELEASE NOTES
-    20260125 - Initial release
-
-.EXAMPLE
-    Run the following command with your non administrative user rights:
-
-    powershell.exe -ExecutionPolicy Bypass -File .\User-SetAdobePdfDevMode.ps1
-
-    This is the recommended execution method when deploying the script via
-    Microsoft Intune, or Microsoft Configuration Manager.
-
-    Note:
-    If you deploy this as an application via Microsoft Intune, use this installation command instead:
-    
-    %windir%\sysnative\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File "User-SetAdobePdfDevMode.ps1"
-
+    Returns:
+      Exit 0 = Compliant (value exists and matches expected bytes)
+      Exit 1 = Noncompliant (missing or different)
 #>
 
 $ErrorActionPreference = "Stop"
 
-# Target registry path and value
 $RegPath   = "HKCU:\Printers\DevModePerUser"
 $ValueName = "Adobe PDF"
 
-# Full .reg-style payload (as provided)
+# Full .reg-style payload (same as in your deployment script)
 $RegPayload = @'
 [HKEY_CURRENT_USER\Printers\DevModePerUser]
 "Adobe PDF"=hex:41,00,64,00,6f,00,62,00,65,00,20,00,50,00,44,00,46,00,00,00,00,\
@@ -73,11 +34,6 @@ $RegPayload = @'
   00,5c,4b,03,00,68,43,04,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,46,46,9f,f2,05,00,00,00,04,00,00,00,ff,\
   00,ff,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
@@ -125,12 +81,6 @@ $RegPayload = @'
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,01,00,00,00
 '@
 
@@ -140,22 +90,14 @@ function Convert-RegHexToByteArray {
         [string]$RegText
     )
 
-    # Extract everything after "hex:" up to end (supports multi-line with "\" continuations)
     $m = [regex]::Match($RegText, 'hex:(?<hex>[\s\S]+)$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    if (-not $m.Success) {
-        throw "Could not locate 'hex:' payload in RegText."
-    }
+    if (-not $m.Success) { throw "Could not locate 'hex:' payload in RegText." }
 
     $hexBlob = $m.Groups['hex'].Value
-
-    # Remove .reg line continuations "\" and all whitespace
     $hexBlob = $hexBlob -replace '\\', ''
     $hexBlob = $hexBlob -replace '\s+', ''
-
-    # Keep only hex digits and commas (defensive)
     $hexBlob = $hexBlob -replace '[^0-9a-fA-F,]', ''
 
-    # Split by comma, convert each to byte
     $parts = $hexBlob.Split(',', [System.StringSplitOptions]::RemoveEmptyEntries)
     if ($parts.Count -lt 1) { throw "Hex payload parsed to zero bytes." }
 
@@ -167,38 +109,25 @@ function Convert-RegHexToByteArray {
 }
 
 try {
-    # Build expected bytes from the embedded payload
+    # Must exist
+    if (-not (Test-Path $RegPath)) { exit 1 }
+
+    # Must have the value
+    $prop = Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop
+    $ActualData = $prop.$ValueName
+    if ($null -eq $ActualData -or $ActualData.Length -lt 1) { exit 1 }
+
+    # Must match expected
     $ExpectedData = Convert-RegHexToByteArray -RegText $RegPayload
+    if ($ActualData.Length -ne $ExpectedData.Length) { exit 1 }
 
-    # Ensure key exists
-    if (-not (Test-Path $RegPath)) {
-        New-Item -Path $RegPath -Force | Out-Null
+    for ($i = 0; $i -lt $ExpectedData.Length; $i++) {
+        if ($ActualData[$i] -ne $ExpectedData[$i]) { exit 1 }
     }
 
-    # Write REG_BINARY
-    New-ItemProperty -Path $RegPath -Name $ValueName -PropertyType Binary -Value $ExpectedData -Force | Out-Null
-
-    # Verify: length + byte-for-byte compare
-    $ActualData = (Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop).$ValueName
-
-    $sameLength = ($ActualData.Length -eq $ExpectedData.Length)
-    $sameBytes  = $sameLength
-
-    if ($sameLength) {
-        for ($i = 0; $i -lt $ExpectedData.Length; $i++) {
-            if ($ActualData[$i] -ne $ExpectedData[$i]) { $sameBytes = $false; break }
-        }
-    }
-
-    if ($sameBytes) {
-        Write-Output "SUCCESS: '$ValueName' written to $RegPath (REG_BINARY, $($ActualData.Length) bytes)."
-        exit 0
-    } else {
-        Write-Error "FAILURE: '$ValueName' data mismatch. Expected $($ExpectedData.Length) bytes, got $($ActualData.Length) bytes."
-        exit 1
-    }
+    exit 0
 }
 catch {
-    Write-Error "FAILURE: $($_.Exception.Message)"
+    # Any error = not detected
     exit 1
 }
