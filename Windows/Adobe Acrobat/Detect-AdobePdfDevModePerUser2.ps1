@@ -1,15 +1,18 @@
+<#
+.SYNOPSIS
+  Intune detection script: verifies HKCU\Printers\DevModePerUser "Adobe PDF" REG_BINARY equals expected DevMode blob.
+
+.NOTES
+  Exit 0 = detected (value exists and matches exactly)
+  Exit 1 = not detected (missing or mismatch)
+#>
+
 $ErrorActionPreference = "Stop"
 
 $RegPath   = "HKCU:\Printers\DevModePerUser"
 $ValueName = "Adobe PDF"
 
-Write-Output "=== Adobe PDF DevModePerUser Detection ==="
-Write-Output ("User: {0}" -f [Security.Principal.WindowsIdentity]::GetCurrent().Name)
-Write-Output ("IsSystem: {0}" -f ([Security.Principal.WindowsIdentity]::GetCurrent().IsSystem))
-Write-Output ("RegPath: {0}" -f $RegPath)
-Write-Output ("ValueName: {0}" -f $ValueName)
-
-# Paste the same payload you use in the install/remediation script:
+# Expected .reg-style payload (must match exactly)
 $RegPayload = @'
 [HKEY_CURRENT_USER\Printers\DevModePerUser]
 "Adobe PDF"=hex:41,00,64,00,6f,00,62,00,65,00,20,00,50,00,44,00,46,00,00,00,00,\
@@ -30,6 +33,14 @@ $RegPayload = @'
   00,5c,4b,03,00,68,43,04,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,46,46,9f,f2,05,00,00,00,04,00,00,00,ff,\
   00,ff,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
@@ -61,71 +72,52 @@ $RegPayload = @'
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
-  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,01,00,00,00
 '@
 
 function Convert-RegHexToByteArray {
-    param([Parameter(Mandatory)][string]$RegText)
+    param(
+        [Parameter(Mandatory)]
+        [string]$RegText
+    )
 
-    $m = [regex]::Match($RegText, 'hex:(?<hex>[\s\S]+)$', 'IgnoreCase')
-    if (-not $m.Success) { throw "Could not locate 'hex:' payload." }
+    $m = [regex]::Match($RegText, 'hex:(?<hex>[\s\S]+)$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    if (-not $m.Success) { throw "Could not locate 'hex:' payload in RegText." }
 
-    $hexBlob = $m.Groups['hex'].Value -replace '\\','' -replace '\s+','' -replace '[^0-9a-fA-F,]',''
+    $hexBlob = $m.Groups['hex'].Value
+    $hexBlob = $hexBlob -replace '\\', ''     # remove .reg line continuations
+    $hexBlob = $hexBlob -replace '\s+', ''    # remove whitespace
+    $hexBlob = $hexBlob -replace '[^0-9a-fA-F,]', '' # defensive
+
     $parts = $hexBlob.Split(',', [System.StringSplitOptions]::RemoveEmptyEntries)
     if ($parts.Count -lt 1) { throw "Hex payload parsed to zero bytes." }
 
     $bytes = New-Object byte[] ($parts.Count)
-    for ($i = 0; $i -lt $parts.Count; $i++) { $bytes[$i] = [Convert]::ToByte($parts[$i], 16) }
+    for ($i = 0; $i -lt $parts.Count; $i++) {
+        $bytes[$i] = [Convert]::ToByte($parts[$i], 16)
+    }
     return $bytes
 }
 
-function Bytes-Equal {
-    param([byte[]]$A, [byte[]]$B)
-    if ($null -eq $A -or $null -eq $B) { return $false }
-    if ($A.Length -ne $B.Length) { return $false }
-    for ($i=0; $i -lt $A.Length; $i++) { if ($A[$i] -ne $B[$i]) { return $false } }
-    return $true
-}
-
 try {
-    if (-not (Test-Path $RegPath)) {
-        Write-Output "Result: RegPath missing"
-        exit 1
+    $ExpectedData = Convert-RegHexToByteArray -RegText $RegPayload
+
+    if (-not (Test-Path $RegPath)) { exit 1 }
+
+    $props = Get-ItemProperty -Path $RegPath -ErrorAction Stop
+    if (-not ($props.PSObject.Properties.Name -contains $ValueName)) { exit 1 }
+
+    $ActualData = $props.$ValueName
+    if ($null -eq $ActualData) { exit 1 }
+
+    # Exact compare: length + byte-for-byte
+    if ($ActualData.Length -ne $ExpectedData.Length) { exit 1 }
+    for ($i = 0; $i -lt $ExpectedData.Length; $i++) {
+        if ($ActualData[$i] -ne $ExpectedData[$i]) { exit 1 }
     }
 
-    $Expected = Convert-RegHexToByteArray $RegPayload
-    Write-Output ("Expected bytes: {0}" -f $Expected.Length)
-
-    $prop = Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop
-    $Actual = $prop.$ValueName
-    if ($null -eq $Actual) {
-        Write-Output "Result: Value missing or null"
-        exit 1
-    }
-
-    # Ensure byte[] (sometimes comes back as object[])
-    [byte[]]$ActualBytes = $Actual
-    Write-Output ("Actual bytes: {0}" -f $ActualBytes.Length)
-
-    if (Bytes-Equal $ActualBytes $Expected) {
-        Write-Output "Result: MATCH (compliant)"
-        exit 0
-    } else {
-        Write-Output "Result: MISMATCH (noncompliant)"
-        exit 1
-    }
+    exit 0
 }
 catch {
-    Write-Output ("ERROR: {0}" -f $_.Exception.Message)
     exit 1
 }
