@@ -1,20 +1,9 @@
-<#
-.SYNOPSIS
-  Intune detection script: verifies HKCU\Printers\DevModePerUser "Adobe PDF" REG_BINARY equals expected DevMode blob.
-
-.OUTPUTS
-  Writes "Compliant" or "Not compliant" (plus a short reason) to STDOUT.
-
-.NOTES
-  Exit 0 = compliant (detected)
-  Exit 1 = not compliant
-#>
-
 $ErrorActionPreference = "Stop"
 
 $RegPath   = "HKCU:\Printers\DevModePerUser"
 $ValueName = "Adobe PDF"
 
+# IMPORTANT: Paste the *FULL* hex blob here (same as remediation script)
 $RegPayload = @'
 [HKEY_CURRENT_USER\Printers\DevModePerUser]
 "Adobe PDF"=hex:41,00,64,00,6f,00,62,00,65,00,20,00,50,00,44,00,46,00,00,00,00,\
@@ -35,6 +24,12 @@ $RegPayload = @'
   00,5c,4b,03,00,68,43,04,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,46,46,9f,f2,05,00,00,00,04,00,00,00,ff,\
   00,ff,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
@@ -72,60 +67,84 @@ $RegPayload = @'
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
   00,00,00,00,00,00,00,00,00,00,00,00,01,00,00,00
 '@
 
 function Convert-RegHexToByteArray {
-    param(
-        [Parameter(Mandatory)]
-        [string]$RegText
-    )
+    param([Parameter(Mandatory)][string]$RegText)
 
-    $m = [regex]::Match($RegText, 'hex:(?<hex>[\s\S]+)$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    if (-not $m.Success) { throw "Could not locate 'hex:' payload in RegText." }
+    $m = [regex]::Match($RegText, '=\s*hex(?:\([0-9a-fA-F]+\))?:\s*(?<hex>[\s\S]+)$',
+        [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    if (-not $m.Success) { throw "Could not locate '=hex:' payload in RegText." }
 
     $hexBlob = $m.Groups['hex'].Value
-    $hexBlob = $hexBlob -replace '\\', ''          # remove .reg line continuations
-    $hexBlob = $hexBlob -replace '\s+', ''         # remove whitespace
-    $hexBlob = $hexBlob -replace '[^0-9a-fA-F,]', ''# defensive
+    $hexBlob = $hexBlob -replace '\\', ''
+    $hexBlob = $hexBlob -replace '\s+', ''
+    $hexBlob = $hexBlob -replace '[^0-9a-fA-F,]', ''
 
     $parts = $hexBlob.Split(',', [System.StringSplitOptions]::RemoveEmptyEntries)
     if ($parts.Count -lt 1) { throw "Hex payload parsed to zero bytes." }
 
     $bytes = New-Object byte[] ($parts.Count)
-    for ($i = 0; $i -lt $parts.Count; $i++) {
-        $bytes[$i] = [Convert]::ToByte($parts[$i], 16)
-    }
+    for ($i = 0; $i -lt $parts.Count; $i++) { $bytes[$i] = [Convert]::ToByte($parts[$i], 16) }
     return $bytes
 }
 
-function NotCompliant([string]$Reason) {
-    Write-Output "Not compliant: $Reason"
-    exit 1
+function Get-Sha256Hex([byte[]]$Bytes) {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        ($sha.ComputeHash($Bytes) | ForEach-Object { $_.ToString("x2") }) -join ""
+    } finally {
+        $sha.Dispose()
+    }
 }
 
 try {
-    $ExpectedData = Convert-RegHexToByteArray -RegText $RegPayload
-
-    if (-not (Test-Path $RegPath)) { NotCompliant "Registry key not found ($RegPath)." }
-
-    $props = Get-ItemProperty -Path $RegPath -ErrorAction Stop
-    if (-not ($props.PSObject.Properties.Name -contains $ValueName)) { NotCompliant "Value not found ('$ValueName')." }
-
-    $ActualData = $props.$ValueName
-    if ($null -eq $ActualData) { NotCompliant "Value is null ('$ValueName')." }
-
-    if ($ActualData.Length -ne $ExpectedData.Length) {
-        NotCompliant "Length mismatch. Expected $($ExpectedData.Length) bytes, got $($ActualData.Length) bytes."
+    if (-not (Test-Path $RegPath)) {
+        Write-Output "Not compliant: key missing ($RegPath)"
+        exit 1
     }
 
-    for ($i = 0; $i -lt $ExpectedData.Length; $i++) {
+    $props = Get-ItemProperty -Path $RegPath -ErrorAction Stop
+    if (-not ($props.PSObject.Properties.Name -contains $ValueName)) {
+        Write-Output "Not compliant: value missing ('$ValueName')"
+        exit 1
+    }
+
+    $ActualData = [byte[]]$props.$ValueName
+    $ExpectedData = Convert-RegHexToByteArray -RegText $RegPayload
+
+    $actualLen   = $ActualData.Length
+    $expectedLen = $ExpectedData.Length
+
+    $actualHash   = Get-Sha256Hex $ActualData
+    $expectedHash = Get-Sha256Hex $ExpectedData
+
+    Write-Output "Expected length: $expectedLen"
+    Write-Output "Actual length:   $actualLen"
+    Write-Output "Expected SHA256: $expectedHash"
+    Write-Output "Actual SHA256:   $actualHash"
+
+    if ($actualLen -ne $expectedLen) {
+        Write-Output "Not compliant: length mismatch"
+        exit 1
+    }
+
+    for ($i = 0; $i -lt $expectedLen; $i++) {
         if ($ActualData[$i] -ne $ExpectedData[$i]) {
-            NotCompliant "Data mismatch at byte index $i (expected 0x{0:X2}, got 0x{1:X2})." -f $ExpectedData[$i], $ActualData[$i]
+            Write-Output ("Not compliant: mismatch at index {0} (expected 0x{1:X2}, got 0x{2:X2})" -f $i, $ExpectedData[$i], $ActualData[$i])
+            exit 1
         }
     }
 
-    Write-Output "Compliant: '$ValueName' matches expected data in $RegPath ($($ActualData.Length) bytes)."
+    Write-Output "Compliant: exact match"
     exit 0
 }
 catch {
