@@ -10,7 +10,7 @@
     https://github.com/janparttimaa/scripts/tree/main/Windows/Adobe%20Acrobat
 
 .VERSION
-    20260125
+    20260131
 
 .AUTHOR
     Jan Parttimaa
@@ -24,13 +24,14 @@
 
 .RELEASE NOTES
     20260125 - Initial release
+    20260131 - Fixed typo from comments.
 
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
     powershell.exe -ExecutionPolicy Bypass -File .\Detect-AdobePdfDevModePerUser.ps1
 
-    When using this on Microsoft intune, use this as a detection method.
+    When using this on Microsoft Intune, use this as a detection method.
     
     More information:
     https://learn.microsoft.com/en-us/intune/intune-service/apps/apps-win32-add
