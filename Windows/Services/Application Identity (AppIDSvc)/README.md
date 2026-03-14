@@ -10,6 +10,7 @@
     Set-ADTServiceStartMode -Service 'AppIDSvc' -StartMode 'Automatic'
     Write-ADTLogEntry -Message "Starting the Application Identity (AppIDSvc) service to enable AppLocker..." -Source 'Info'
     Start-ADTServiceAndDependencies -Name 'AppIDSvc'
+ 
 ```
 
 ### Uninstall
@@ -17,4 +18,5 @@
     ## <Perform Uninstallation tasks here>
 
     Write-ADTLogEntry -Message "No uninstall required" -Source 'Info'
+ 
 ```
