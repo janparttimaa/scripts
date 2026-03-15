@@ -14,7 +14,7 @@
 
 ### Install
 ```
-    ## <Perform Pre-Installation tasks here>
+    ## <Perform Installation tasks here>
 
     # Inform to the log that baseline settings of Microsoft Visual Studio Code will be implemented
     Write-ADTLogEntry -Message "Starting deploying baseline settings of Microsoft Visual Studio Code..." -Source 'Info'
@@ -28,7 +28,6 @@
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsTerminalEnableAutoApprove' -Type 'DWord' -Value '0'
 
     # Enable global auto-approval for agent mode tools
-    # See line number 149
     # Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsEligibleForAutoApproval' -Type 'MultiString' -Value $ChatToolsEligibleForAutoApproval
 
     # Controls which tools are eligible for automatic approval
@@ -72,9 +71,9 @@
     # Let's create registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes
     Write-ADTLogEntry -Message "Creating registry key for Microsoft Intune or Microsoft Configuration Manager detection rule purposes..." -Source 'Info'
     
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\$($adtSession.AppName)" -Name 'BaselineSettingsStatus' -Type 'String' -Value "Implemented"
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'BaselineSettingsStatus' -Type 'String' -Value "Implemented"
 
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\$($adtSession.AppName)" -Name 'BaselineSettingsAppVersion' -Type 'String' -Value $($adtSession.AppVersion)
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'BaselineSettingsAppVersion' -Type 'String' -Value $($adtSession.AppVersion)
 
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
@@ -127,9 +126,9 @@
     # Let's remove registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes
     Write-ADTLogEntry -Message "Removing registry key used for Microsoft Intune or Configuration Manager detection rules..." -Source 'Info'
     
-    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\$($adtSession.AppName)" -Name 'BaselineSettingsStatus'
+    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'BaselineSettingsStatus'
 
-    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\$($adtSession.AppName)" -Name 'BaselineSettingsAppVersion'
+    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'BaselineSettingsAppVersion'
 
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
