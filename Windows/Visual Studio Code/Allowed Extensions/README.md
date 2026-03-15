@@ -61,12 +61,80 @@
 ```
     ## <Perform Post-Uninstallation tasks here>
 
+    # Registry paths
+    $regPath1 = "HKLM:\SOFTWARE\$CorporateName\Microsoft Visual Studio Code"
+    $regPath2 = "HKLM:\SOFTWARE\$CorporateName"
+    $regPath3 = "HKLM:\SOFTWARE\Policies\Microsoft\VSCode"
+
     # Let's remove registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes
     Write-ADTLogEntry -Message "Removing registry key used for Microsoft Intune or Configuration Manager detection rules..." -Source 'Info'
     
-    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'AllowedExtensionsStatus'
+    Remove-ADTRegistryKey -LiteralPath $regPath1 -Name 'AllowedExtensionsStatus'
 
-    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'AllowedExtensionsAppVersion'
+    Remove-ADTRegistryKey -LiteralPath $regPath1 -Name 'AllowedExtensionsAppVersion'
+
+    # Check if the registry key exists
+    if (Test-Path $regPath1) {
+
+        $key1 = Get-Item $regPath1
+        $subKeys1 = $key1.GetSubKeyNames()
+        $values1 = $key1.GetValueNames()
+
+        # Check if both subkeys and values are empty
+        if ($subKeys1.Count -eq 0 -and $values1.Count -eq 0) {
+            Remove-ADTRegistryKey -LiteralPath $regPath1
+            Write-ADTLogEntry -Message "Registry key was empty and has been deleted: $regPath1" -Source 'Info'
+        }
+        else {
+            Write-ADTLogEntry -Message "Registry key $regPath1 is not empty. No action taken." -Source 'Info'
+        }
+
+    }
+    else {
+        Write-ADTLogEntry -Message "Registry key $regPath1 does not exist." -Source 'Info'
+    }
+
+    # Check if the registry key exists
+    if (Test-Path $regPath2) {
+
+        $key2 = Get-Item $regPath2
+        $subKeys2 = $key2.GetSubKeyNames()
+        $values2 = $key2.GetValueNames()
+
+        # Check if both subkeys and values are empty
+        if ($subKeys2.Count -eq 0 -and $values2.Count -eq 0) {
+            Remove-ADTRegistryKey -LiteralPath $regPath2
+            Write-ADTLogEntry -Message "Registry key was empty and has been deleted: $regPath2" -Source 'Info'
+        }
+        else {
+            Write-ADTLogEntry -Message "Registry key $regPath2 is not empty. No action taken." -Source 'Info'
+        }
+
+    }
+    else {
+        Write-ADTLogEntry -Message "Registry key $regPath2 does not exist." -Source 'Info'
+    }
+
+    # Check if the registry key exists
+    if (Test-Path $regPath3) {
+
+        $key3 = Get-Item $regPath3
+        $subKeys3 = $key3.GetSubKeyNames()
+        $values3 = $key3.GetValueNames()
+
+        # Check if both subkeys and values are empty
+        if ($subKeys3.Count -eq 0 -and $values3.Count -eq 0) {
+            Remove-ADTRegistryKey -LiteralPath $regPath3
+            Write-ADTLogEntry -Message "Registry key was empty and has been deleted: $regPath3" -Source 'Info'
+        }
+        else {
+            Write-ADTLogEntry -Message "Registry key $regPath3 is not empty. No action taken." -Source 'Info'
+        }
+
+    }
+    else {
+        Write-ADTLogEntry -Message "Registry key $regPath3 does not exist." -Source 'Info'
+    }
 
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
