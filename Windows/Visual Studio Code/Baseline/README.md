@@ -1,4 +1,4 @@
-# Visual Studio Code - Baseline Policy Enforcement
+# Visual Studio Code - Baseline
 ## PSAppDeployToolkit (PSADT)
 
 ### Pre-Install
