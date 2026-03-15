@@ -78,9 +78,17 @@
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
 
+### Pre-Uninstall
+```
+    ## <Perform Pre-Installation tasks here>
+
+    # Replace "Example" with your company name e.g. "Contoso"
+    $CorporateName = "Example"
+```
+
 ### Uninstall
 ```
-    ## <Perform Uninstallation tasks here>
+    ## <Perform Pre-Uninstallation tasks here>
 
     # Inform to the log that baseline settings of Microsoft Visual Studio Code will be removed
     Write-ADTLogEntry -Message "Removing baseline settings of Microsoft Visual Studio Code..." -Source 'Info'

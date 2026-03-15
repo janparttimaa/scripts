@@ -38,6 +38,14 @@
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
 
+### Pre-Uninstall
+```
+    ## <Perform Pre-Installation tasks here>
+
+    # Replace "Example" with your company name e.g. "Contoso"
+    $CorporateName = "Example"
+```
+
 ### Uninstall
 ```
     ## <Perform Uninstallation tasks here>
