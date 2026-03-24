@@ -9,7 +9,7 @@
     for use when deploying it as a Win32 application through Intune.
 
     More information:
-    https://github.com/janparttimaa/scripts/tree/main/Windows/Services/Application%20Identity%20(AppIDSvc)
+    https://github.com/janparttimaa/scripts/tree/main/Windows/Services/Windows%20Defender%20Advanced%20Threat%20Protection%20Service%20(Sense)
 
 .VERSION
     20260324
