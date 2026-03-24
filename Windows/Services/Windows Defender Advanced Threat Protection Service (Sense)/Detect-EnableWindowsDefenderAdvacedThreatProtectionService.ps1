@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-    Detection script: checks that Application Identity (AppIDSvc) is Automatic and Running.
+    Detection script: checks that Windows Defender Advanced Threat Protection Service (Sense) is Automatic and Running.
 
 .DESCRIPTION
     Exits 0 if compliant, otherwise exits 1.
     
-    This script is intended as a detection method for the installation script "Services - Application Identity (AppIDSvc)",
+    This script is intended as a detection method for the installation script "Services - Windows Defender Advanced Threat Protection Service (Sense)",
     for use when deploying it as a Win32 application through Intune.
 
     More information:
@@ -25,13 +25,12 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20260324 - Description of the script updated
-    20260131 - Initial release
+    20260324 - Initial release
 
 .EXAMPLE
     Run the following command with your administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\Detect-EnableApplicationIdentity.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\Detect-EnableWindowsDefenderAdvacedThreatProtectionService.ps1
 
     When using this on Microsoft Intune, use this as a detection method.
     
@@ -40,8 +39,8 @@
 
 #>
 
-$ServiceName   = "AppIDSvc"
-$DisplayName   = "Application Identity"
+$ServiceName   = "Sense"
+$DisplayName   = "Windows Defender Advanced Threat Protection Service"
 $ExpectedState = "Running"
 
 Try {
