@@ -16,8 +16,8 @@
 ```
     ## <Perform Pre-Installation tasks here>
 
-    # Inform to the log that policy of allowed extensions to Microsoft Visual Studio Code will be implemented
-    Write-ADTLogEntry -Message "Starting deploying policy of allowed extensions to Microsoft Visual Studio Code..." -Source 'Info'
+    # Inform to the log that policy of allowed extensions to Visual Studio Code will be implemented
+    Write-ADTLogEntry -Message "Starting deploying policy of allowed extensions to Visual Studio Code..." -Source 'Info'
 
     # Specify which extensions can be installed
     # More information and available values: https://code.visualstudio.com/docs/setup/enterprise#_configure-allowed-extensions
@@ -31,9 +31,9 @@
     # Let's create registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes
     Write-ADTLogEntry -Message "Creating registry key for Microsoft Intune or Microsoft Configuration Manager detection rule purposes..." -Source 'Info'
     
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'AllowedExtensionsStatus' -Type 'String' -Value "Implemented"
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Visual Studio Code" -Name 'AllowedExtensionsStatus' -Type 'String' -Value "Implemented"
 
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'AllowedExtensionsAppVersion' -Type 'String' -Value $($adtSession.AppVersion)
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Visual Studio Code" -Name 'AllowedExtensionsAppVersion' -Type 'String' -Value $($adtSession.AppVersion)
 
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
@@ -50,8 +50,8 @@
 ```
     ## <Perform Uninstallation tasks here>
 
-    # Inform to the log that policy of allowed extensions from Microsoft Visual Studio Code will be removed
-    Write-ADTLogEntry -Message "Removing policy of allowed extensions from Microsoft Visual Studio Code..." -Source 'Info'
+    # Inform to the log that policy of allowed extensions from Visual Studio Code will be removed
+    Write-ADTLogEntry -Message "Removing policy of allowed extensions from Visual Studio Code..." -Source 'Info'
 
     # Removing following policy: Specify which extensions can be installed
     Remove-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'AllowedExtensions'
@@ -62,7 +62,7 @@
     ## <Perform Post-Uninstallation tasks here>
 
     # Registry paths
-    $regPath1 = "HKLM:\SOFTWARE\$CorporateName\Microsoft Visual Studio Code"
+    $regPath1 = "HKLM:\SOFTWARE\$CorporateName\Visual Studio Code"
     $regPath2 = "HKLM:\SOFTWARE\$CorporateName"
     $regPath3 = "HKLM:\SOFTWARE\Policies\Microsoft\VSCode"
 

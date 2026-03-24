@@ -7,17 +7,14 @@
 
     # Replace "Example" with your company name e.g. "Contoso"
     $CorporateName = "Example"
-
-    # JSON string for ChatToolsEligibleForAutoApproval (stored as REG_MULTI_SZ with a single entry). Set value '' keep the value empty.
-    # $ChatToolsEligibleForAutoApproval = ''
 ```
 
 ### Install
 ```
     ## <Perform Installation tasks here>
 
-    # Inform to the log that baseline settings of Microsoft Visual Studio Code will be implemented
-    Write-ADTLogEntry -Message "Starting deploying baseline settings of Microsoft Visual Studio Code..." -Source 'Info'
+    # Inform to the log that baseline settings of Visual Studio Code will be implemented
+    Write-ADTLogEntry -Message "Starting deploying baseline settings of Visual Studio Code..." -Source 'Info'
 
     # Configure the Marketplace service URL to connect to
     # Defined URL e.g. 'https://extension.example.com/'
@@ -26,9 +23,6 @@
     # Enable the rule-based auto-approval for the terminal tool
     # 0 - disabled / 1 - enabled
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsTerminalEnableAutoApprove' -Type 'DWord' -Value '0'
-
-    # Enable global auto-approval for agent mode tools
-    # Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsEligibleForAutoApproval' -Type 'MultiString' -Value $ChatToolsEligibleForAutoApproval
 
     # Controls which tools are eligible for automatic approval
     # 0 - disabled / 1 - enabled
@@ -71,9 +65,9 @@
     # Let's create registry key for Micorosoft Intune or Microsoft Configuration Manager detection rule purposes
     Write-ADTLogEntry -Message "Creating registry key for Microsoft Intune or Microsoft Configuration Manager detection rule purposes..." -Source 'Info'
     
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'BaselineSettingsStatus' -Type 'String' -Value "Implemented"
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Visual Studio Code" -Name 'BaselineSettingsStatus' -Type 'String' -Value "Implemented"
 
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Microsoft Visual Studio Code" -Name 'BaselineSettingsAppVersion' -Type 'String' -Value $($adtSession.AppVersion)
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$CorporateName\Visual Studio Code" -Name 'BaselineSettingsAppVersion' -Type 'String' -Value $($adtSession.AppVersion)
 
     Write-ADTLogEntry -Message "All done" -Source 'Info'
 ```
@@ -90,17 +84,14 @@
 ```
     ## <Perform Pre-Uninstallation tasks here>
 
-    # Inform to the log that baseline settings of Microsoft Visual Studio Code will be removed
-    Write-ADTLogEntry -Message "Removing baseline settings of Microsoft Visual Studio Code..." -Source 'Info'
+    # Inform to the log that baseline settings of Visual Studio Code will be removed
+    Write-ADTLogEntry -Message "Removing baseline settings of Visual Studio Code..." -Source 'Info'
 
     # Removing following policy: Configure the Marketplace service URL to connect to
     Remove-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ExtensionGalleryServiceUrl'
 
     # Removing following policy: Enable the rule-based auto-approval for the terminal tool
     Remove-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsTerminalEnableAutoApprove'
-
-    # Removing following policy: Enable global auto-approval for agent mode tools
-    # Remove-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsEligibleForAutoApproval'
 
     # Removing following policy: Controls which tools are eligible for automatic approval
     Remove-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\VSCode' -Name 'ChatToolsAutoApprove'
@@ -132,7 +123,7 @@
     ## <Perform Post-Uninstallation tasks here>
     
     # Registry paths
-    $regPath1 = "HKLM:\SOFTWARE\$CorporateName\Microsoft Visual Studio Code"
+    $regPath1 = "HKLM:\SOFTWARE\$CorporateName\Visual Studio Code"
     $regPath2 = "HKLM:\SOFTWARE\$CorporateName"
     $regPath3 = "HKLM:\SOFTWARE\Policies\Microsoft\VSCode"
 
