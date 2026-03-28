@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Detection script: Checks if fix for Acrobat PDF conversion failure have been implemented
+    Detection script: Checks if fix for Acrobat PDF conversion failure have been implemented.
 
 .DESCRIPTION
     Exits 0 if compliant, otherwise exits 1.
