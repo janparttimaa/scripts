@@ -10,7 +10,7 @@
 ```
    ## <Perform Installation tasks here>
 
-    Write-ADTLogEntry -Message "Implementing registry fix for Acrobat PDF conversion failures..." -Source 'Info'
+    Write-ADTLogEntry -Message "Implementing registry fix for Acrobat PDF conversion failure..." -Source 'Info'
     Start-ADTProcess -FilePath 'C:\Windows\regedit.exe' -ArgumentList "/s `"$(adtSession.DirSupportFiles)\registry_fix.reg`""
 ```
 
