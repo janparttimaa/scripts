@@ -1,16 +1,18 @@
 <#
 .SYNOPSIS
-    Detection method for installation script "User-SetAdobePdfDevMode.ps1"
+    Detection script: Checks if fix for Acrobat PDF conversion failure have been implemented
 
 .DESCRIPTION
-    This script is intended as a detection method for the installation script "User-SetAdobePdfDevMode.ps1", 
+    Exits 0 if compliant, otherwise exits 1.
+    
+    This script is intended as a detection method for the installation script "Adobe Acrobat - Fix Acrobat conversion failure",
     for use when deploying it as a Win32 application through Intune.
 
     More information:
-    https://github.com/janparttimaa/scripts/tree/main/Windows/Adobe%20Acrobat
+    https://github.com/janparttimaa/scripts/tree/main/Windows/Adobe%20Acrobat/Fix%20Acrobat%20PDF%20conversion%20failure
 
 .VERSION
-    20260131
+    20260328
 
 .AUTHOR
     Jan Parttimaa
@@ -23,13 +25,14 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20260125 - Initial release
+    20260328 - Script modified.
     20260131 - Fixed typo from comments.
+    20260125 - Initial release
 
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\Detect-AdobePdfDevModePerUser.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\Detect-AdobeAcrobatFixAcrobatPDFConversionFailure.ps1
 
     When using this on Microsoft Intune, use this as a detection method.
     
