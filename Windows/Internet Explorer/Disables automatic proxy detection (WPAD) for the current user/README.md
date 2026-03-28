@@ -1,5 +1,7 @@
 # Internet Explorer - Disable automatic proxy detection (WPAD) for the current user
 
+Disables automatic proxy detection (WPAD) for the current user. This helps prevent unwanted proxy auto-discovery behavior and is commonly used as a security hardening measure.
+
 ## PSAppDeployToolkit (PSADT)
 
 ### Install
