@@ -12,7 +12,7 @@
     https://github.com/janparttimaa/scripts/tree/main/Windows/Services/Application%20Identity%20(AppIDSvc)
 
 .VERSION
-    20260324
+    20260328
 
 .AUTHOR
     Jan Parttimaa
@@ -25,13 +25,14 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
+    20260328 - File name renamed
     20260324 - Description of the script updated
     20260131 - Initial release
 
 .EXAMPLE
     Run the following command with your administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\Detect-EnableApplicationIdentity.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\Detect-ApplicationIdentityAppIDSvc.ps1
 
     When using this on Microsoft Intune, use this as a detection method.
     

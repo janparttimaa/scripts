@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Detection script: checks that Windows Defender Advanced Threat Protection Service (Sense) is Automatic and Running.
+    Detection script: checks that Windows Defender Advanced Threat Protection Service (Sense) is Running.
 
 .DESCRIPTION
     Exits 0 if compliant, otherwise exits 1.
@@ -12,7 +12,7 @@
     https://github.com/janparttimaa/scripts/tree/main/Windows/Services/Windows%20Defender%20Advanced%20Threat%20Protection%20Service%20(Sense)
 
 .VERSION
-    20260324
+    20260328
 
 .AUTHOR
     Jan Parttimaa
@@ -25,12 +25,13 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
+    20260328 - File name renamed and updated detection logic to only check if service is running
     20260324 - Initial release
 
 .EXAMPLE
     Run the following command with your administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\Detect-EnableWindowsDefenderAdvacedThreatProtectionService.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\Detect-WindowsDefenderAdvacedThreatProtectionServiceSense.ps1
 
     When using this on Microsoft Intune, use this as a detection method.
     
@@ -47,21 +48,15 @@ Try {
     # Verify service exists
     $svc = Get-Service -Name $ServiceName -ErrorAction Stop
 
-    # Verify startup type via CIM (Get-Service doesn't reliably expose it)
-    $cim = Get-CimInstance -ClassName Win32_Service -Filter "Name='$ServiceName'" -ErrorAction Stop
-
-    $ActualStart = $cim.StartMode         # "Auto", "Manual", "Disabled"
     $ActualState = $svc.Status.ToString() # "Running", "Stopped", etc.
-
-    $StartOk = ($ActualStart -eq "Auto")
     $StateOk = ($ActualState -eq $ExpectedState)
 
-    If ($StartOk -and $StateOk) {
-        Write-Output "COMPLIANT: '$DisplayName' ($ServiceName) start mode is Auto and state is Running."
+    If ($StateOk) {
+        Write-Output "COMPLIANT: '$DisplayName' ($ServiceName) state is Running."
         Exit 0
     }
     Else {
-        Write-Output "NON-COMPLIANT: '$DisplayName' ($ServiceName) start mode is '$ActualStart' and state is '$ActualState' (expected: Auto + Running)."
+        Write-Output "NON-COMPLIANT: '$DisplayName' ($ServiceName) state is '$ActualState' (expected: Running)."
         Exit 1
     }
 }
