@@ -1,4 +1,4 @@
-# Point and Print - RPC authentication level Privacy for printing
+# Point and Print - RPC authentication level privacy for printing
 
 Enables RpcAuthnLevelPrivacyEnabled for Windows Print subsystem via registry policy. 
 
