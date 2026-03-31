@@ -1,6 +1,6 @@
 # Windows Hello for Business - Forbid the use of external cameras for Windows Hello face sign-in
 
-This setting enforces that only built-in cameras can be usedfor Windows Hello Face authentication.
+Ensures that only built-in cameras can be used for Windows Hello facial recognition.
 
 More information: https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/windows-hello-face-authentication
 
