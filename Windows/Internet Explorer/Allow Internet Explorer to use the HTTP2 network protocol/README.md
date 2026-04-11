@@ -8,7 +8,8 @@ If you disable this policy setting, Internet Explorer won´t use the HTTP2 netwo
 
 If you don´t configure this policy setting, users can turn this behavior on or off, using Internet Explorer Advanced Internet Options settings. The default is on.
 
-**In this script example, we will disable HTTP2.**
+> [!NOTE]  
+> In this script example, we will disable HTTP2.
 
 ## PSAppDeployToolkit (PSADT)
 
