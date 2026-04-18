@@ -30,5 +30,6 @@ Ensures, that managed settings are deployed and enforced to all employees.
 ```
     ## <Perform Uninstallation tasks here>
 
+    # Informing that uninstallation is not required
     Write-ADTLogEntry -Message "No uninstall required" -Source 'Info'
 ```
