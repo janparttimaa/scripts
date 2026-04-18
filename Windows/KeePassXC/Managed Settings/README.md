@@ -1,7 +1,7 @@
 # KeePassXC - Managed Settings
 
 > [!NOTE]  
-> Detection method script for Intue is here: [Detect-KeePassXCSettings.ps1](./Detect-KeePassXCSettings.ps1)
+> Detection method script for Intune is here: [Detect-KeePassXCSettings.ps1](./Detect-KeePassXCSettings.ps1)
 
 Ensures, that managed settings are deployed and enforced to all employees.
 
