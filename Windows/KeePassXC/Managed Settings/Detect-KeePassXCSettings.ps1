@@ -10,7 +10,7 @@
     Win32 application through Intune.
 
     More information:
-    
+    https://github.com/janparttimaa/scripts/tree/main/Windows/KeePassXC/Managed%20Settings
 
 .VERSION
     20260418
@@ -24,7 +24,6 @@
 .LICENSE
     This script is licensed under the MIT License.
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
-
 
 .RELEASE NOTES
     20260418 - Initial release
