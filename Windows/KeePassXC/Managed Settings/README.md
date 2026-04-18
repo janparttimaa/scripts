@@ -1,5 +1,8 @@
 # KeePassXC - Managed Settings
 
+> [!NOTE]  
+> Dtetection method script for Intue is here: [Detect-KeePassXCSettings.ps1]()
+
 Ensures, that managed settings are deployed and enforced to all employees.
 
 ## PSAppDeployToolkit (PSADT)
