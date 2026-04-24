@@ -1,0 +1,32 @@
+# Microsoft Power BI Desktop - Managed Settings
+
+Ensures, that managed settings are deployed and enforced to all employees.
+
+## PSAppDeployToolkit (PSADT)
+
+### Install
+```
+    ## <Perform Installation tasks here>
+
+    # Starting deployment of managed settings
+    Write-ADTLogEntry -Message "Applying managed settings to Microsoft Power BI Desktop..." -Source 'Info'
+
+    # Enforcing default language to "en-US"
+    Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'DefaultUICulture' -Value 'en-US' -Type 'String'
+    Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'UICulture' -Value 'en-US' -Type 'String'
+
+    # Disabling multi-language support to prevent users from changing the language in Power BI Desktop. Users should only use enforced default language
+    # IMPORTANT: This registry key is not supported on Power BI Desktop originated from MIcrosoft Store
+    Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'SupportsMultiLanguage' -Value '0' -Type 'DWord'
+
+    # Finishing deployment of managed settings
+    Write-ADTLogEntry -Message "Managed settings has been deployed to Microsoft Power BI Desktop" -Source 'Info'
+```
+
+### Uninstall
+```
+    ## <Perform Uninstallation tasks here>
+
+    # Informing that uninstallation is not required
+    Write-ADTLogEntry -Message "No uninstall required" -Source 'Info'
+```
