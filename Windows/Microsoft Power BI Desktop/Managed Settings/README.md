@@ -23,8 +23,10 @@ Ensures, that managed settings are deployed and enforced to all employees.
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'UICulture' -Value 'en-US' -Type 'String'
 
     # Disabling multi-language support to prevent users from changing the language in Power BI Desktop. Users should only use enforced default language
-    # IMPORTANT: This registry key is not supported on Power BI Desktop originated from MIcrosoft Store
+    # IMPORTANT: This registry key is not supported on Power BI Desktop originated from Microsoft Store
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'SupportsMultiLanguage' -Value '0' -Type 'DWord'
+
+    # Disabling 
 
     # Finishing deployment of managed settings
     Write-ADTLogEntry -Message "Managed settings has been deployed to Microsoft Power BI Desktop" -Source 'Info'
