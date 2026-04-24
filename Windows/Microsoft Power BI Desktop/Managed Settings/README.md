@@ -26,8 +26,6 @@ Ensures, that managed settings are deployed and enforced to all employees.
     # IMPORTANT: This registry key is not supported on Power BI Desktop originated from Microsoft Store
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'SupportsMultiLanguage' -Value '0' -Type 'DWord'
 
-    # Disabling 
-
     # Finishing deployment of managed settings
     Write-ADTLogEntry -Message "Managed settings has been deployed to Microsoft Power BI Desktop" -Source 'Info'
 ```
