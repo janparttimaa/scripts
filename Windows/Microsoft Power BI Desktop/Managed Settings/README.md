@@ -2,6 +2,13 @@
 
 Ensures, that managed settings are deployed and enforced to all employees.
 
+> [!NOTE]  
+> This example applies to following types of Power BI Desktop applications:
+> | Type                           | URL                                                                          |
+> | -------------------------------| ---------------------------------------------------------------------------- |
+> | UWP / Microsoft Store (64-bit) | [Hyperlink](https://aka.ms/pbidesktopstore)                                  |
+> | EXE (64-bit)                   | [Hyperlink](https://www.microsoft.com/en-us/download/details.aspx?id=58494)  |
+
 ## PSAppDeployToolkit (PSADT)
 
 ### Install
