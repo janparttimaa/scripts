@@ -1,6 +1,6 @@
-# Power BI Desktop - Managed Settings
+# Power BI Desktop - Baseline
 
-Ensures, that managed settings are deployed and enforced to all employees.
+Ensures, that baseline settings are deployed and enforced to all employees.
 
 > [!NOTE]  
 > This example applies to following types of Power BI Desktop applications:
@@ -15,8 +15,8 @@ Ensures, that managed settings are deployed and enforced to all employees.
 ```
     ## <Perform Installation tasks here>
 
-    # Starting deployment of managed settings
-    Write-ADTLogEntry -Message "Applying managed settings to Power BI Desktop..." -Source 'Info'
+    # Starting deployment of baseline settings
+    Write-ADTLogEntry -Message "Applying baseline settings to Power BI Desktop..." -Source 'Info'
 
     # Enforcing default language to "en-US"
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'DefaultUICulture' -Value 'en-US' -Type 'String'
@@ -26,8 +26,8 @@ Ensures, that managed settings are deployed and enforced to all employees.
     # IMPORTANT: This registry key is not supported on Power BI Desktop originated from Microsoft Store
     Set-ADTRegistryKey -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft Power BI Desktop' -Name 'SupportsMultiLanguage' -Value '0' -Type 'DWord'
 
-    # Finishing deployment of managed settings
-    Write-ADTLogEntry -Message "Managed settings has been deployed to Power BI Desktop" -Source 'Info'
+    # Finishing deployment of baseline settings
+    Write-ADTLogEntry -Message "Baseline has been deployed to Power BI Desktop" -Source 'Info'
 ```
 
 ### Uninstall
