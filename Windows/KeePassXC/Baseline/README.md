@@ -1,9 +1,9 @@
-# KeePassXC - Managed Settings
+# KeePassXC - Baseline
 
 > [!NOTE]  
 > Detection method script for Intune is here: [Detect-KeePassXCSettings.ps1](./Detect-KeePassXCSettings.ps1)
 
-Ensures, that managed settings are deployed and enforced to all employees.
+Ensures, that Baseline settings are deployed and enforced to all employees.
 
 ## PSAppDeployToolkit (PSADT)
 
@@ -11,8 +11,8 @@ Ensures, that managed settings are deployed and enforced to all employees.
 ```
     ## <Perform Installation tasks here>
 
-    # Starting deployment of managed settings
-    Write-ADTLogEntry -Message "Applying managed settings to KeePassXC..." -Source 'Info'
+    # Starting deployment of Baseline
+    Write-ADTLogEntry -Message "Applying baseline settings to KeePassXC..." -Source 'Info'
 
     # Set required keys and values to 'General' section
     Set-ADTIniValue -FilePath "$envAppData\KeePassXC\keepassxc.ini" -Section 'General' -Key 'UpdateCheckMessageShown' -Value 'true' -Force
@@ -22,8 +22,8 @@ Ensures, that managed settings are deployed and enforced to all employees.
     Set-ADTIniValue -FilePath "$envAppData\KeePassXC\keepassxc.ini" -Section 'GUI' -Key 'ColorPasswords' -Value 'true' -Force
     Set-ADTIniValue -FilePath "$envAppData\KeePassXC\keepassxc.ini" -Section 'GUI' -Key 'CheckForUpdates' -Value 'false' -Force
 
-    # Finishing deployment of managed settings
-    Write-ADTLogEntry -Message "Managed settings has been deployed to KeePassXC" -Source 'Info'
+    # Finishing deployment of Baseline
+    Write-ADTLogEntry -Message "Baseline settings has been deployed to KeePassXC" -Source 'Info'
 ```
 
 ### Uninstall
