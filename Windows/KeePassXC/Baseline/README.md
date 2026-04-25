@@ -3,7 +3,7 @@
 > [!NOTE]  
 > Detection method script for Intune is here: [Detect-KeePassXCSettings.ps1](./Detect-KeePassXCSettings.ps1)
 
-Ensures, that Baseline settings are deployed and enforced to all employees.
+Ensures, that baseline settings are deployed and enforced to all employees.
 
 ## PSAppDeployToolkit (PSADT)
 
