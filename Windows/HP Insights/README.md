@@ -4,7 +4,7 @@
 > Additional requirement rule script for Intune is here: [Check-DeviceManufacturerHP.ps1](./Check-DeviceManufacturerHP.ps1)
 > This script will make sure, that HP Insight will be deployed only to HP-devices.
 > Screenshot of deployment settings:
-> <kbd><img src= "../img/screenshot01.png" alt="Screenshot of Microsoft Intune requirement rule settings for the additional requirements script used by the HP Insights app."> </kbd>
+> <kbd><img src= "./img/screenshot01.png" alt="Screenshot of Microsoft Intune requirement rule settings for the additional requirements script used by the HP Insights app."> </kbd>
 
 ## PSAppDeployToolkit (PSADT)
 
