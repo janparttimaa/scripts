@@ -10,10 +10,10 @@
     Win32 application through Intune.
 
     More information:
-    https://github.com/janparttimaa/scripts/tree/main/Windows/KeePassXC/Managed%20Settings
+    https://github.com/janparttimaa/scripts/blob/main/Windows/KeePassXC/Baseline
 
 .VERSION
-    20260418
+    20260425
 
 .AUTHOR
     Jan Parttimaa
@@ -26,7 +26,7 @@
     You may obtain a copy of the License at https://opensource.org/licenses/MIT
 
 .RELEASE NOTES
-    20260418 - Initial release
+    20260425 - Initial release
 
 .EXAMPLE
     Run the following command with your non administrative user rights:
