@@ -16,6 +16,7 @@
     - Hewlett Packard
 
     More information:
+    https://github.com/janparttimaa/scripts/tree/main/Windows/HP%20Insight
     https://learn.microsoft.com/en-us/intune/intune-service/apps/apps-win32-add
 
 .VERSION
