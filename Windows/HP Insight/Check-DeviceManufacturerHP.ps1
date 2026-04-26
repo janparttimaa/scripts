@@ -16,7 +16,7 @@
     - Hewlett Packard
 
     More information:
-    https://github.com/janparttimaa/scripts/tree/main/Windows/HP%20Insight
+    https://github.com/janparttimaa/scripts/tree/main/Windows/HP%20Insights
 
 .VERSION
     20260426
