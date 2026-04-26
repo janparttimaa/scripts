@@ -55,7 +55,7 @@ try {
     # - Remove dots to handle "HP.inc" vs "HP Inc."
     $Normalized = $Manufacturer.Trim().ToLower() -replace '\.', ''
 
-    Write-Output "Detected manufacturer: $Manufacturer"
+    Write-Output "Detected device manufacturer: $Manufacturer"
     Write-Output "Normalized value: $Normalized"
 
     # Check if manufacturer matches allowed values
@@ -65,11 +65,11 @@ try {
         $Normalized -eq "hewlett-packard" -or
         $Normalized -eq "hewlett packard"
     ) {
-        Write-Output "Requirement satisfied: Supported manufacturer"
+        Write-Output "Requirement satisfied: Supported device manufacturer"
         exit 0
     }
     else {
-        Write-Output "Requirement not met: Unsupported manufacturer"
+        Write-Output "Requirement not met: Unsupported device manufacturer"
         exit 1
     }
 }
