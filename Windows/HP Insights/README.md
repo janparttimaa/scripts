@@ -130,6 +130,8 @@
 
 ### Post-Uninstallation
 ```powershell
+    ## <Perform Post-Uninstallation tasks here>
+     
     # Uninstallation command for HP Insights Analytics
     Uninstall-ADTApplication -Name 'HP Insights Analytics' -NameMatch 'Exact' -FilterScript { $_.Publisher -match 'HP Inc.' } -IgnoreExitCodes '*'
 
