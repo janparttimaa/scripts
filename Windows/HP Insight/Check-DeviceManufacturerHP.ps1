@@ -37,7 +37,7 @@
 .EXAMPLE
     Run manually with or without your administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\Check-HPManufacturer.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\Check-DeviceManufacturerHP.ps1
 
     When using this in Microsoft Intune, configure it as a requirement rule.
 #>
