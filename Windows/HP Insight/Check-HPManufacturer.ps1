@@ -17,7 +17,6 @@
 
     More information:
     https://github.com/janparttimaa/scripts/tree/main/Windows/HP%20Insight
-    https://learn.microsoft.com/en-us/intune/intune-service/apps/apps-win32-add
 
 .VERSION
     20260426
@@ -66,11 +65,11 @@ try {
         $Normalized -eq "hewlett-packard" -or
         $Normalized -eq "hewlett packard"
     ) {
-        Write-Output "Requirement satisfied: supported manufacturer"
+        Write-Output "Requirement satisfied: Supported manufacturer"
         exit 0
     }
     else {
-        Write-Output "Requirement not met: unsupported manufacturer"
+        Write-Output "Requirement not met: Unsupported manufacturer"
         exit 1
     }
 }
