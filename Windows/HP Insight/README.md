@@ -1,7 +1,7 @@
 # HP Insights
 
 > [!NOTE]  
-> Additional requirement rule script for Intune is here: [Detect-KeePassXCSettings.ps1](./Check-DeviceManufacturerHP.ps1)
+> Additional requirement rule script for Intune is here: [Check-DeviceManufacturerHP.ps1](./Check-DeviceManufacturerHP.ps1)
 > This script will make sure, that HP Insight will be deployed only to HP-devices.
 > Screenshot of deployment settings:
 > TBA
