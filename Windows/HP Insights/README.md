@@ -5,7 +5,7 @@
 > This script will make sure, that HP Insight will be deployed only to HP-devices.
 > Screenshot of deployment settings:
 > <tr>
-> <img src= "./img/screenshot01.png" width="50%" alt="Screenshot of Microsoft Intune requirement rule settings for the additional requirements script used by the HP Insights app." style="border: 2px solid black; border-radius: 4px;"/>
+> <img src= "./img/screenshot01.png" width="50%" alt="Screenshot of Microsoft Intune requirement rule settings for the additional requirements script used by the HP Insights app." style="border: 3px solid black"/>
 
 ## PSAppDeployToolkit (PSADT)
 
