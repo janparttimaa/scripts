@@ -35,7 +35,7 @@
     20260426 - Initial release
 
 .EXAMPLE
-    Run manually:
+    Run manually with or without your administrative user rights:
 
     powershell.exe -ExecutionPolicy Bypass -File .\Check-HPManufacturer.ps1
 
