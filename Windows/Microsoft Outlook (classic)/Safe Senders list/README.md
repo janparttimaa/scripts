@@ -46,7 +46,7 @@ This example deploys a Safe Senders list (text file) to managed Windows devices.
 ```
     ## <Perform Uninstallation tasks here>
 
-    # Inform to the log that policy of allowed extensions from Visual Studio Code will be removed
+    # Removing Safe Senders list from Microsoft Outlook (classic)
     Write-ADTLogEntry -Message "Removing Safe Senders list from Microsoft Outlook (classic)..." -Source 'Info'
 
     Remove-ADTFolder -Path "$envProgramFiles\$CorporateName\Microsoft Outlook (classic) - Safe Senders list"
