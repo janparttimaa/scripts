@@ -17,6 +17,32 @@
     Uninstall-ADTApplication -Name 'Copilot' -NameMatch "Exact" -FilterScript { $_.Publisher -eq "Microsoft Corporation" } -IgnoreExitCodes "*"
 ```
 
+### Post-Uninstall
+```
+    ## <Perform Post-Uninstallation tasks here>
+    
+    # Setting variables
+    $runKey = 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
+    $wildcard = 'MicrosoftCopilotAutoLaunch*'
+
+    # Removing Microsoft Copilot remainer from startup apps
+    Invoke-ADTAllUsersRegistryAction -ScriptBlock {
+        $registryValues = Get-ADTRegistryKey -Key $runKey -SID $_.SID
+
+        if ($null -eq $registryValues) {
+            Write-ADTLogEntry -Message "Run key not found or contains no values for SID [$($_.SID)]." -Source 'Info'
+            return
+        }
+
+        $matchingValueNames = $registryValues.PSObject.Properties | Where-Object { $_.Name -like $wildcard -and $_.Name -notlike 'PS*' } | Select-Object -ExpandProperty Name
+
+        foreach ($valueName in $matchingValueNames) {
+            Write-ADTLogEntry -Message "Removing registry value [$valueName] from [$runKey] for SID [$($_.SID)]." -Source 'Info'
+            Remove-ADTRegistryKey -Key $runKey -Name $valueName -SID $_.SID
+        }
+    }
+```
+
 ## Microsoft Intune
 
 ### Detection Method
