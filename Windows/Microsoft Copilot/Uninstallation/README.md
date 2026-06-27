@@ -13,19 +13,31 @@
 ```
     ## <Perform Uninstallation tasks here>
 
+    # Uninstallation command for Microsoft Copilot.
     Write-ADTLogEntry -Message "Uninstalling application: Copilot" -Source 'Info'
     Uninstall-ADTApplication -Name 'Copilot' -NameMatch "Exact" -FilterScript { $_.Publisher -eq "Microsoft Corporation" } -IgnoreExitCodes "*"
+    
+    # Checking that Copilot have been uninstalled successfully.
+    # If yes, we can proceed. If not, we cannot proceed and uninstallation is closed with exit code 6900 recommended by PSAppDeployToolkit.
+    $copilot = Get-ADTApplication -Name 'Copilot' -NameMatch "Exact" -FilterScript { $_.Publisher -eq "Microsoft Corporation" }
+
+    if ($copilot) {
+        Write-ADTLogEntry -Message "Copilot not uninstalled successfully. We cannot proceed. Terminating uninstallation..." -Source 'Info'
+        Close-ADTSession -ExitCode 69000
+    } else {
+        Write-ADTLogEntry -Message "Copilot uninstalled successfully or it was not previously installed. We can continue forward." -Source 'Info'
+    }
 ```
 
 ### Post-Uninstall
 ```
     ## <Perform Post-Uninstallation tasks here>
     
-    # Setting variables
+    # Setting variables.
     $runKey = 'HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
     $wildcard = 'MicrosoftCopilotAutoLaunch*'
 
-    # Removing Microsoft Copilot remainer from startup apps
+    # Removing Microsoft Copilot remainer from startup apps.
     Invoke-ADTAllUsersRegistryAction -ScriptBlock {
         $registryValues = Get-ADTRegistryKey -Key $runKey -SID $_.SID
 
@@ -42,7 +54,7 @@
         }
     }
 
-    # Remove Copilot folder if existed
+    # Remove Copilot folder if existed.
     Remove-ADTFolder -Path "$envProgramFilesX86\Microsoft\Copilot"
 ```
 
