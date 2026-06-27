@@ -42,4 +42,4 @@ In order to block "new" Microsoft Copilot, you need to use following AppLocker r
 
 ## "Old" Microsoft Copilot app
 
-Check more information [here](https://learn.microsoft.com/en-us/windows/client-management/manage-windows-copilot#remove-or-prevent-installation-of-the-microsoft-copilot app).
+Check more information [here](https://learn.microsoft.com/en-us/windows/client-management/manage-windows-copilot#remove-or-prevent-installation-of-the-microsoft-copilot-app).
