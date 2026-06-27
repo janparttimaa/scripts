@@ -41,6 +41,9 @@
             Remove-ADTRegistryKey -Key $runKey -Name $valueName -SID $_.SID
         }
     }
+
+    # Remove Copilot folder if existed
+    Remove-ADTFolder -Path "$envProgramFilesX86\Microsoft\Copilot"
 ```
 
 ## Microsoft Intune
