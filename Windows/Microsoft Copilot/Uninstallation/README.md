@@ -15,5 +15,14 @@
 
     Write-ADTLogEntry -Message "Uninstalling application: Copilot" -Source 'Info'
     Uninstall-ADTApplication -Name 'Copilot' -NameMatch "Exact" -FilterScript { $_.Publisher -eq "Microsoft Corporation" } -IgnoreExitCodes "*"
-    Remove-ADTFolder -Path "$envProgramFilesX86\Microsoft\Copilot"
 ```
+
+## Microsoft Intune
+
+### Detection Method
+Use either these file paths:
+- C:\Program Files (x86)\Microsoft\Copilot\Application\mscopilot.exe
+- C:\Program Files (x86)\Microsoft\Copilot\Application\mscopilot_proxy.exe
+
+or following registry key:
+- HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Copilot

@@ -19,7 +19,7 @@ In order to block "new" Microsoft Copilot, you need to use following AppLocker r
 | -------- | ------- | ------- | ------- | ------- | ------- |
 | Rule 1  | Deny | Everyone | %PROGRAMFILES%\Microsoft\Copilot\Application\mscopilot_proxy.exe | Path | N/A
 | Rule 2 | Deny | Everyone | COPILOT, from O=MICROSOFT CORPORATION, L=REDMOND, S=WASHINGTON, C=US | Publisher | N/A
-| Rule 3 | Deny | Everyone | COPILOT, from O=MICROSOFT CORPORATION, L=REDMOND, S=WASHINGTON, C=US | Publisher | N/A
+| Rule 3 | Deny | Everyone | STORE INSTALLER, from O=MICROSOFT CORPORATION, L=REDMOND, S=WASHINGTON, C=US | Publisher | N/A
 
 #### Rule 1
 ![Rule 1 - Screenshot 1](./img/Rule%201%20-%20Screenshot%201.png "Rule 1 - Screenshot 1")
