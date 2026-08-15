@@ -9,7 +9,7 @@
     for use when deploying it as a Win32 application through Intune.
 
     More information:
-    https://github.com/janparttimaa/scripts/tree/main/Windows/Services/DataSnipperStartupService%20(DataSnipperStartupService.exe)
+    https://github.com/janparttimaa/scripts/blob/main/Windows/Services/DataSnipperStartupService%20(DataSnipperStartupService.exe)
 
 .VERSION
     20260815
