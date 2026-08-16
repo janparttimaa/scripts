@@ -168,7 +168,7 @@ try {
     if ($maxVersionParsed) {
         Write-Output "Max version:  $MaxVersion ($(if ($MaxVersionInclusive) { 'inclusive' } else { 'exclusive' }))"
     } else {
-        Write-Output "Max version:  none"
+        Write-Output "Max version:  None"
     }
     Write-Output "Installed:    $(if ($installedVersions.Count -gt 0) { (($installedVersions | Sort-Object) -join ', ') } else { 'none found' })"
 
@@ -189,11 +189,11 @@ try {
     # Intune's custom detection script contract: exit 0 + STDOUT output means "detected"/compliant,
     # any non-zero exit code means "not detected" regardless of what was written to STDOUT.
     if ($matchingVersion) {
-        Write-Output "Compliant: found .NET Desktop Runtime $matchingVersion ($Architecture) within range"
+        Write-Output "Compliant: Found .NET Desktop Runtime $matchingVersion ($Architecture) within range"
         exit 0
     }
 
-    Write-Output "Not compliant: no installed .NET Desktop Runtime ($Architecture) version within range"
+    Write-Output "Not compliant: No installed .NET Desktop Runtime ($Architecture) version within range"
     exit 1
 }
 catch {
