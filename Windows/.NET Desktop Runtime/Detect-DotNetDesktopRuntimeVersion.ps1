@@ -170,7 +170,7 @@ try {
     } else {
         Write-Output "Max version:  None"
     }
-    Write-Output "Installed:    $(if ($installedVersions.Count -gt 0) { (($installedVersions | Sort-Object) -join ', ') } else { 'none found' })"
+    Write-Output "Installed:    $(if ($installedVersions.Count -gt 0) { (($installedVersions | Sort-Object) -join ', ') } else { 'None found' })"
 
     # Compliant if at least one installed version falls within [$MinVersion, $MaxVersion],
     # honoring the configured inclusive/exclusive bounds.
