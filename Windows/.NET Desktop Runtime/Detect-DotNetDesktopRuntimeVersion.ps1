@@ -53,19 +53,19 @@ $ErrorActionPreference = "Stop"
 # Configuration - edit these variables to match the requirement being detected
 # ------------------------------------------------------------------------------------------------
 
-# Lowest acceptable version, e.g. "8.0.0". Mandatory.
-$MinVersion = "8.0.0"
+# Lowest acceptable version, e.g. "10.0.0". Mandatory.
+$MinVersion = "10.0.0"
 
 # $true  = min version itself is acceptable (>=)
 # $false = min version itself is NOT acceptable (>)
 $MinVersionInclusive = $true
 
-# Highest acceptable version, e.g. "9.0.0". Leave as "" for no upper bound.
-$MaxVersion = "9.0.0"
+# Highest acceptable version, e.g. "11.0.0". Leave as "" for no upper bound.
+$MaxVersion = "11.0.0"
 
 # $true  = max version itself is acceptable (<=)
 # $false = max version itself is NOT acceptable (<)
-$MaxVersionInclusive = $true
+$MaxVersionInclusive = $false
 
 # Architecture of the .NET Desktop Runtime to check. Valid values: "x64", "x86", "arm64"
 $Architecture = "x64"
