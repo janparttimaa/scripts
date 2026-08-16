@@ -127,8 +127,11 @@ function Get-DesktopRuntimeSharedPath {
 }
 
 # Lists installed runtime versions found under $SharedPath. Each subfolder of the shared runtime
-# path is named after the version it contains (e.g. "8.0.11"), so this just parses each subfolder
-# name as a [version] and returns the ones that parse successfully. Returns an empty array if the
+# path is named after the version it contains (e.g. "8.0.11"), so this parses each subfolder name
+# as a [version] and returns the ones that parse successfully AND still contain PresentationCore.dll,
+# a core WPF assembly shipped in every Microsoft.WindowsDesktop.App release. The DLL check guards
+# against stale folders left behind by an interrupted/partial uninstall, where the version-named
+# directory still exists but the runtime itself is no longer usable. Returns an empty array if the
 # path is missing/inaccessible rather than throwing, so callers can treat "no path" the same as
 # "no versions installed".
 function Get-InstalledDesktopRuntimeVersions {
@@ -142,9 +145,13 @@ function Get-InstalledDesktopRuntimeVersions {
 
     foreach ($dir in Get-ChildItem -LiteralPath $SharedPath -Directory -ErrorAction SilentlyContinue) {
         $parsed = $null
-        if ([version]::TryParse($dir.Name, [ref]$parsed)) {
-            $parsed
+        if (-not [version]::TryParse($dir.Name, [ref]$parsed)) {
+            continue
         }
+        if (-not (Test-Path -LiteralPath (Join-Path $dir.FullName "PresentationCore.dll"))) {
+            continue
+        }
+        $parsed
     }
 }
 
