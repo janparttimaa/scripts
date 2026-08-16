@@ -8,8 +8,8 @@
 
     Enumerates the installed Microsoft.WindowsDesktop.App shared runtime versions for the configured
     architecture ($Architecture) and reports compliant if at least one installed version satisfies the
-    configured version range ($MinVersion / $MaxVersion, each with a configurable inclusive/exclusive
-    bound).
+    configured version range ($MinVersion / $MaxVersion, each with a configurable option to include or
+    exclude the bound itself).
 
     This script is intended as a detection method for a .NET Desktop Runtime installation, for use
     when deploying it as a Win32 application through Intune.
@@ -58,14 +58,14 @@ $MinVersion = "10.0.0"
 
 # $true  = min version itself is acceptable (>=)
 # $false = min version itself is NOT acceptable (>)
-$MinVersionInclusive = $true
+$IncludeMinVersion = $true
 
 # Highest acceptable version, e.g. "11.0.0". Leave as "" for no upper bound.
 $MaxVersion = "11.0.0"
 
 # $true  = max version itself is acceptable (<=)
 # $false = max version itself is NOT acceptable (<)
-$MaxVersionInclusive = $false
+$IncludeMaxVersion = $false
 
 # Architecture of the .NET Desktop Runtime to check. Valid values: "x64", "x86", "arm64"
 $Architecture = "x64"
@@ -164,21 +164,21 @@ try {
     # Diagnostic context surfaced to Intune's app detection log for troubleshooting.
     Write-Output "Architecture: $Architecture"
     Write-Output "Shared path:  $(if ($sharedPath) { $sharedPath } else { 'n/a' })"
-    Write-Output "Min version:  $MinVersion ($(if ($MinVersionInclusive) { 'inclusive' } else { 'exclusive' }))"
+    Write-Output "Min version:  $MinVersion ($(if ($IncludeMinVersion) { 'included' } else { 'excluded' }))"
     if ($maxVersionParsed) {
-        Write-Output "Max version:  $MaxVersion ($(if ($MaxVersionInclusive) { 'inclusive' } else { 'exclusive' }))"
+        Write-Output "Max version:  $MaxVersion ($(if ($IncludeMaxVersion) { 'included' } else { 'excluded' }))"
     } else {
         Write-Output "Max version:  None"
     }
     Write-Output "Installed:    $(if ($installedVersions.Count -gt 0) { (($installedVersions | Sort-Object) -join ', ') } else { 'None found' })"
 
     # Compliant if at least one installed version falls within [$MinVersion, $MaxVersion],
-    # honoring the configured inclusive/exclusive bounds.
+    # honoring whether each bound is configured to be included or excluded.
     $matchingVersion = $installedVersions | Where-Object {
-        $meetsMin = if ($MinVersionInclusive) { $_ -ge $minVersionParsed } else { $_ -gt $minVersionParsed }
+        $meetsMin = if ($IncludeMinVersion) { $_ -ge $minVersionParsed } else { $_ -gt $minVersionParsed }
         $meetsMax = if ($null -eq $maxVersionParsed) {
             $true
-        } elseif ($MaxVersionInclusive) {
+        } elseif ($IncludeMaxVersion) {
             $_ -le $maxVersionParsed
         } else {
             $_ -lt $maxVersionParsed
