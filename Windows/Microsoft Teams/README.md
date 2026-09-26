@@ -71,3 +71,13 @@ Make also sure that following has been set: `DeferTimes = 0`
 
     Write-ADTLogEntry -Message "No uninstall required" -Source 'Info'
 ```
+
+## Intune: Detection script
+
+Available here: [Detect-MicrosoftTeams.ps1](Detect-MicrosoftTeams.ps1)
+
+Before using this, make sure that you have defined version number of the offline installer into line number 53. Example:
+
+```powershell 
+$RequiredVersion = [Version]"26225.1806.5074.1452"
+```
