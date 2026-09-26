@@ -8,19 +8,24 @@ More information how to get offline installer and bootsrapper: [Option 1B: Downl
 
 Here is script how to check version of the offline MSIX-installer:
 ```powershell
-    # Variables
-    $msix = "C:\Temp\MSTeams-x64.msix"
-    $temp = Join-Path $env:TEMP "msix-check"
-    $zip  = Join-Path $env:TEMP "msix-check.zip"
+# Variables
+$msix = "C:\Temp\MSTeams-x64.msix"
+$temp = Join-Path $env:TEMP "msix-check"
+$zip  = Join-Path $env:TEMP "msix-check.zip"
 
-    Copy-Item $msix $zip
-    Expand-Archive $zip -DestinationPath $temp -Force
+Copy-Item $msix $zip
+Expand-Archive $zip -DestinationPath $temp -Force
 
-    [xml]$manifest = Get-Content "$temp\AppxManifest.xml"
-    $manifest.Package.Identity.Version
+[xml]$manifest = Get-Content "$temp\AppxManifest.xml"
+$manifest.Package.Identity.Version
 ```
 - Make sure, that msix is placed to `C:\Temp`
 - Set this version number to version variables for PSADT and Intune detection script.
+
+## Check currently installer version of Microsoft Teams
+```powershell
+Get-AppxPackage -AllUsers -Name MSTeams -ErrorAction SilentlyContinue
+```
 
 ## PSAppDeployToolkit (PSADT)
 
