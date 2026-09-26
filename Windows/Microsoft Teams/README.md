@@ -8,7 +8,7 @@ Installs offline installer of Microsoft Teams
 ```
     ## <Perform Installation tasks here>
 
-    TBA
+    Start-ADTProcess -FilePath "teamsbootstrapper.exe" -ArgumentList "-p -o `"$($adtSession.DirFiles)\MSTeams-x64.msix`"" -WindowStyle "Hidden"
 ```
 
 ### Uninstall
