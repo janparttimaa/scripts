@@ -19,7 +19,8 @@ Here is script how to check version of the offline MSIX-installer:
     [xml]$manifest = Get-Content "$temp\AppxManifest.xml"
     $manifest.Package.Identity.Version
 ```
-Set this version number to version variables for PSADT and Intune detection script.
+- Make sure, that msix is placed to `C:\Temp`
+- Set this version number to version variables for PSADT and Intune detection script.
 
 ## PSAppDeployToolkit (PSADT)
 
