@@ -81,3 +81,5 @@ Before using this, make sure that you have defined version number of the offline
 ```powershell 
 $RequiredVersion = [Version]"26225.1806.5074.1452"
 ```
+
+If user have defined version or newer installed, Intune will show application to be installed. Otherwise, it says application is not installed.
