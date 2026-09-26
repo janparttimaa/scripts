@@ -2,9 +2,27 @@
 
 Installs offline installer of Microsoft Teams. In this example, we will install offline version "26225.1806.5074.1452".
 
+## Check version of the offline MSIX-installer
+
+Here is script how to check version of the offline MSIX-installer:
+```powershell
+    # Variables
+    $msix = "C:\Temp\MSTeams-x64.msix"
+    $temp = Join-Path $env:TEMP "msix-check"
+    $zip  = Join-Path $env:TEMP "msix-check.zip"
+
+    Copy-Item $msix $zip
+    Expand-Archive $zip -DestinationPath $temp -Force
+
+    [xml]$manifest = Get-Content "$temp\AppxManifest.xml"
+    $manifest.Package.Identity.Version
+```
+Set this version number to version variables for PSADT and Intune detection script.
+
 ## PSAppDeployToolkit (PSADT)
 
 ### Variables
+
 Here is the example of defined variables:
 ```powershell
     # App variables.
@@ -28,6 +46,7 @@ Here is the example of defined variables:
 ```
 
 ### Pre-Install
+
 Make also sure that following has been set: `DeferTimes = 0`
 
 ### Install
