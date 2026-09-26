@@ -6,7 +6,7 @@ Installs offline installer of Microsoft Teams. In this example, we will install 
 
 ### Variables
 Here is the example of defined variables:
-```
+```powershell
     # App variables.
     AppVendor = 'Microsoft Corporation'
     AppName = 'Microsoft Teams'
@@ -31,14 +31,14 @@ Here is the example of defined variables:
 Make also sure that following has been set: `DeferTimes = 0`
 
 ### Install
-```
+```powershell
     ## <Perform Installation tasks here>
 
     Start-ADTProcess -FilePath "teamsbootstrapper.exe" -ArgumentList "-p -o `"$($adtSession.DirFiles)\MSTeams-x64.msix`"" -WindowStyle "Hidden"
 ```
 
 ### Uninstall
-```
+```powershell
     ## <Perform Uninstallation tasks here>
 
     Write-ADTLogEntry -Message "No uninstall required" -Source 'Info'
