@@ -27,7 +27,6 @@ Here is the example of defined variables:
     InstallTitle = 'Microsoft Teams'
 ```
 
-
 ### Pre-Install
 Make also sure that following has been set: `DeferTimes = 0`
 
