@@ -62,7 +62,7 @@ Try {
 
     # If no matching Teams package was found, detection fails.
     If (-not $Packages) {
-        Write-Output "NON-COMPLIANT: '$DisplayName' ($PackageName) is not installed."
+        Write-Output "NON-COMPLIANT: $DisplayName ($PackageName) is not installed."
         Exit 1
     }
 
@@ -95,14 +95,14 @@ Try {
     # Teams is installed and the detected version meets
     # or exceeds the required minimum version.
     If ($VersionOk) {
-        Write-Output "COMPLIANT: '$DisplayName' ($PackageName) version is '$InstalledVersion' (required: $RequiredVersion or newer)."
+        Write-Output "COMPLIANT: $DisplayName ($PackageName) version is $InstalledVersion (Required: $RequiredVersion or newer)."
         Exit 0
     }
     Else {
 
         # Teams was found, but the installed version is older
         # than the configured minimum version.
-        Write-Output "NON-COMPLIANT: '$DisplayName' ($PackageName) version is '$InstalledVersion' (required: $RequiredVersion or newer)."
+        Write-Output "NON-COMPLIANT: $DisplayName ($PackageName) version is $InstalledVersion (Required: $RequiredVersion or newer)."
         Exit 1
     }
 }
@@ -113,6 +113,6 @@ Catch {
     #
     # Returning exit code 1 tells Intune that the application
     # does not satisfy the detection requirements.
-    Write-Output "NON-COMPLIANT: Unable to query '$DisplayName' ($PackageName). $($_.Exception.Message)"
+    Write-Output "NON-COMPLIANT: Unable to query $DisplayName ($PackageName). $($_.Exception.Message)"
     Exit 1
 }
