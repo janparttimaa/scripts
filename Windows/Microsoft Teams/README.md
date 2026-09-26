@@ -1,6 +1,6 @@
 # Microsoft Teams
 
-Installs offline installer of Microsoft Teams. In this example, we will install offline version "26225.1806.5074.145".
+Installs offline installer of Microsoft Teams. In this example, we will install offline version "26225.1806.5074.1452".
 
 ## PSAppDeployToolkit (PSADT)
 
