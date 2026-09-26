@@ -2,6 +2,8 @@
 
 Installs offline installer of Microsoft Teams. In this example, we will install offline version "26225.1806.5074.1452".
 
+More information how to get offline installer and bootsrapper: [Option 1B: Download and install Teams using an offline installer](https://learn.microsoft.com/en-us/microsoftteams/teams-client-bulk-install)
+
 ## Check version of the offline MSIX-installer
 
 Here is script how to check version of the offline MSIX-installer:
