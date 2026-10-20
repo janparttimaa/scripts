@@ -17,7 +17,7 @@
     actions or modify the device configuration.
 
     More information:
-    https://learn.microsoft.com/en-us/intune/intune-service/fundamentals/remediations
+    https://github.com/janparttimaa/scripts/tree/main/Windows/Windows%20Subsystem%20for%20Linux%20(WSL)
 
 .VERSION
     20261020
