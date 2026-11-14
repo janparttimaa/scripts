@@ -35,7 +35,7 @@ Copy-UserInternationalSettingsToSystem -WelcomeScreen $true -NewUser $true
 
 # 9. Apply settings to the current user
 Write-ADTLogEntry -Message "Applying international settings to the current user..." -Source "Info"
-Start-ADTProcessAsUser -FilePath "$envSystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-ExecutionPolicy Bypass -File $($adtSession.DirSupportFiles)\Set-WindowsLanguageAndRegionalConfiguration-NonAdmin.ps1" -WindowStyle Hidden -CreateNoWindow
+Start-ADTProcessAsUser -FilePath "$envSystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-ExecutionPolicy Bypass -File $($adtSession.DirSupportFiles)\Set-LanguageKeyboardAndRegionalSettings-NonAdmin.ps1" -WindowStyle Hidden -CreateNoWindow
 
 # 10. Mark the configuration as completed
 Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
