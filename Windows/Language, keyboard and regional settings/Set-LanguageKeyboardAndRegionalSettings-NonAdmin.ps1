@@ -38,7 +38,7 @@
 .EXAMPLE
     Run the following command with your non administrative user rights:
 
-    powershell.exe -ExecutionPolicy Bypass -File .\Set-WindowsLanguageAndRegionalConfiguration-NonAdmin.ps1
+    powershell.exe -ExecutionPolicy Bypass -File .\Set-LanguageKeyboardAndRegionalSettings-NonAdmin.ps1
 
     The script configures language and regional settings for the current user.
 
