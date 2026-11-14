@@ -39,4 +39,4 @@ Start-ADTProcessAsUser -FilePath "$envSystemRoot\system32\WindowsPowerShell\v1.0
 
 # 10. Mark the configuration as completed
 Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
-Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Contoso\Language and Keyboard Configuration Fix" -Name "Version" -Type "String" -Value $($adtSession.Appversion)
+Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Contoso\Fix-LangKbdRegion" -Name "Version" -Type "String" -Value $($adtSession.Appversion)
