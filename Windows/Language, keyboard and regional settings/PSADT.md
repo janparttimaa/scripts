@@ -64,6 +64,7 @@ Write-ADTLogEntry -Message "The changes have been made and will take effect afte
 
 ## 2. Non-Admin (Current User)
 ```powershell
+
 # Setting variables and values
 $Language = 'en-US'                                                                 # Preferred language: English (United States)
 $Keyboard = '0409:0000040B'                                                         # Keyboard layout: Finnish
