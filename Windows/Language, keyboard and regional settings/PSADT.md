@@ -1,10 +1,25 @@
 ## 1. Admin (Welcome screen and New User)
 ```powershell
+
 # Setting variables and values
-$Language = 'en-US'           # Preferred language: English (United States)
-$Keyboard = '0409:0000040B'   # Keyboard layout: Finnish
-$Culture = 'fi-FI'            # Regional format: Finnish (Finland)
-$GeoID = 77                   # Country or region: Finland
+$Language = 'en-US'                                                                 # Preferred language: English (United States)
+$Keyboard = '0409:0000040B'                                                         # Keyboard layout: Finnish
+$Culture = 'fi-FI'                                                                  # Regional format: Finnish (Finland)
+$GeoID = 77                                                                         # Country or region: Finland
+$SafetyCheckFile = "$envProgramData\Contoso\Fix-LangKbdRegion\SafetyCheck.flag"     # Safety check file to check if we have configured these values during Autopilot enrollment
+
+# Check if safety check file existed. If yes, we don't need to proceed.
+Write-ADTLogEntry -Message "Checking if safety check file existed..." -Source "Info"
+
+if (Test-Path -Path $SafetyCheckFile -PathType Leaf) {
+    Write-ADTLogEntry -Message "Safety check file identified. We don't need to proceed further for configuration." -Source "Info"
+    Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Contoso\Fix-LangKbdRegion" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
+    Close-ADTSession -ExitCode 0
+}
+else {
+    Write-ADTLogEntry -Message "Safety check file not existed. We can proceed forward..." -Source "Info"
+}
 
 Write-ADTLogEntry -Message "Starting Windows 1x language configuration..." -Source "Info"
 
@@ -50,10 +65,24 @@ Write-ADTLogEntry -Message "The changes have been made and will take effect afte
 ## 2. Non-Admin (Current User)
 ```powershell
 # Setting variables and values
-$Language = 'en-US'           # Preferred language: English (United States)
-$Keyboard = '0409:0000040B'   # Keyboard layout: Finnish
-$Culture = 'fi-FI'            # Regional format: Finnish (Finland)
-$GeoID = 77                   # Country or region: Finland
+$Language = 'en-US'                                                                 # Preferred language: English (United States)
+$Keyboard = '0409:0000040B'                                                         # Keyboard layout: Finnish
+$Culture = 'fi-FI'                                                                  # Regional format: Finnish (Finland)
+$GeoID = 77                                                                         # Country or region: Finland
+$SafetyCheckFile = "$envProgramData\Contoso\Fix-LangKbdRegion\SafetyCheck.flag"     # Safety check file to check if we have configured these values during Autopilot enrollment
+
+# Check if safety check file existed. If yes, we don't need to proceed.
+Write-ADTLogEntry -Message "Checking if safety check file existed..." -Source "Info"
+
+if (Test-Path -Path $SafetyCheckFile -PathType Leaf) {
+    Write-ADTLogEntry -Message "Safety check file identified. We don't need to proceed further for configuration." -Source "Info"
+    Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Contoso\Fix-LangKbdRegion" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
+    Close-ADTSession -ExitCode 0
+}
+else {
+    Write-ADTLogEntry -Message "Safety check file not existed. We can proceed forward..." -Source "Info"
+}
 
 Write-ADTLogEntry -Message "Starting Windows 1x language configuration..." -Source "Info"
 
