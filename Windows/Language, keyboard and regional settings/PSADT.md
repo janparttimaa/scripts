@@ -13,8 +13,6 @@ Write-ADTLogEntry -Message "Checking if safety check file existed..." -Source "I
 
 if (Test-Path -Path $SafetyCheckFile -PathType Leaf) {
     Write-ADTLogEntry -Message "Safety check file identified. We don't need to proceed further for configuration." -Source "Info"
-    Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
-    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Contoso\Fix-LangKbdRegion" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
     Close-ADTSession -ExitCode 0
 }
 else {
@@ -77,8 +75,6 @@ Write-ADTLogEntry -Message "Checking if safety check file existed..." -Source "I
 
 if (Test-Path -Path $SafetyCheckFile -PathType Leaf) {
     Write-ADTLogEntry -Message "Safety check file identified. We don't need to proceed further for configuration." -Source "Info"
-    Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
-    Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\Contoso\Fix-LangKbdRegion" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
     Close-ADTSession -ExitCode 0
 }
 else {
