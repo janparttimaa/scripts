@@ -76,7 +76,7 @@ if (-not $CanProcessWifiProfiles) {
 # this script can inspect it and choose the deployment result itself.
 foreach ($ProfileName in $ProfilesToForget) {
     try {
-        $NetshResult = Start-ADTProcess -FilePath "$env:SystemRoot\System32\netsh.exe" -ArgumentList @('wlan', 'delete', 'profile', "name=$ProfileName") -IgnoreExitCodes "*" -PassThru
+        $NetshResult = Start-ADTProcess -FilePath "$envSystem32Directory\netsh.exe" -ArgumentList @('wlan', 'delete', 'profile', "name=$ProfileName") -IgnoreExitCodes "*" -PassThru
         $NetshExitCode = $NetshResult.ExitCode
 
         if ($NetshExitCode -eq 0) {
