@@ -110,8 +110,11 @@
     Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Uninstalling the applications..." -Source "Info"
     Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
     Uninstall-ADTApplication -Name "WXP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Uninstall-ADTApplication -Name "HP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics - Dependencies" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Uninstall-ADTApplication -Name "HP Insights Analytics - Dependencies" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
 
     # Remove the folders
     Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Removing the folders..." -Source "Info"
@@ -170,8 +173,11 @@
     Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Uninstalling the applications..." -Source "Info"
     Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
     Uninstall-ADTApplication -Name "WXP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Uninstall-ADTApplication -Name "HP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics - Dependencies" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Uninstall-ADTApplication -Name "HP Insights Analytics - Dependencies" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
 
     # Remove the folders
     Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Removing the folders..." -Source "Info"
