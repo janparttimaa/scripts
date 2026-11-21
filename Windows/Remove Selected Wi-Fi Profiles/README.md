@@ -5,12 +5,12 @@
 # they contain spaces, and uncomment each entry that should be removed.
 $ProfilesToForget = @(
     # Examples only: replace them with your actual saved profile names.
-    # 'Office Wi-Fi',
-    # 'Guest Network',
-    # 'Warehouse Wi-Fi'
+    # "Office Wi-Fi",
+    # "Guest Network",
+    # "Warehouse Wi-Fi"
 )
 # Replace Contoso with your organization's registry key name.
-$CompanyName = 'Contoso'
+$CompanyName = "Contoso"
 # =========================== END USER CONFIGURATION ================================
 
 # =========================== SCRIPT LOGIC: DO NOT EDIT =============================
@@ -19,7 +19,7 @@ $CompanyName = 'Contoso'
 $ProfilesToForget = @($ProfilesToForget | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 
 # The certificate must include the Client Authentication EKU used by EAP-TLS.
-$ClientAuthenticationOid = '1.3.6.1.5.5.7.3.2'
+$ClientAuthenticationOID = "1.3.6.1.5.5.7.3.2"
 # Use one timestamp for certificate validity checks and the install-age check.
 $Now = Get-Date
 # This flag controls whether the script is allowed to make changes.
@@ -37,25 +37,24 @@ $HasDeploymentError = $false
 # because the script cannot safely verify the 48-hour minimum.
 try {
     $WindowsInstallDate = (Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop).InstallDate
-}
-catch {
-    Write-ADTLogEntry -Message 'Could not determine the Windows installation date. No Wi-Fi profiles were changed.' -Severity Warning
+} catch {
+    Write-ADTLogEntry -Message "Could not determine the Windows installation date. No Wi-Fi profiles were changed." -Severity Warning
     $CanProcessWifiProfiles = $false
 }
 
 # If Windows is younger than 48 hours, leave profiles untouched and request retry.
 if ($CanProcessWifiProfiles -and (-not $WindowsInstallDate -or (($Now - $WindowsInstallDate) -lt [TimeSpan]::FromDays(2)))) {
-    Write-ADTLogEntry -Message 'Windows has been installed for less than 2 days. No Wi-Fi profiles were changed.'
+    Write-ADTLogEntry -Message "Windows has been installed for less than 2 days. No Wi-Fi profiles were changed." -Severity Info
     $CanProcessWifiProfiles = $false
 }
 
 # Check the signed-in user's Personal store, not the Local Computer store. This
 # script should run in user context so this store and HKCU refer to that user.
 if ($CanProcessWifiProfiles) {
-    $HasWifiClientCertificate = Get-ChildItem -Path 'Cert:\CurrentUser\My' -ErrorAction SilentlyContinue | Where-Object { $_.HasPrivateKey -and $_.NotBefore -le $Now -and $_.NotAfter -ge $Now -and (@($_.EnhancedKeyUsageList | ForEach-Object { $_.ObjectId.Value }) -contains $ClientAuthenticationOid) } | Select-Object -First 1
+    $HasWifiClientCertificate = Get-ChildItem -Path "Cert:\CurrentUser\My" | Where-Object { $_.HasPrivateKey -and $_.NotBefore -le $Now -and $_.NotAfter -gt $Now -and $_.EnhancedKeyUsageList.ObjectId -contains $ClientAuthenticationOID } | Select-Object -First 1
 
     if (-not $HasWifiClientCertificate) {
-        Write-ADTLogEntry -Message 'No valid user Client Authentication certificate with a private key was found. No Wi-Fi profiles were changed.'
+        Write-ADTLogEntry -Message "No valid user Client Authentication certificate with a private key was found. No Wi-Fi profiles were changed." -Severity Info
         $CanProcessWifiProfiles = $false
     }
 }
@@ -63,12 +62,12 @@ if ($CanProcessWifiProfiles) {
 # Treat an empty configured list as a prerequisite failure so Intune retries
 # instead of creating the detection key for a run that removed no profiles.
 if ($CanProcessWifiProfiles -and $ProfilesToForget.Count -eq 0) {
-    Write-ADTLogEntry -Message 'A suitable user certificate was found, but no Wi-Fi profile names are configured. No profiles were changed.'
+    Write-ADTLogEntry -Message "A suitable user certificate was found, but no Wi-Fi profile names are configured. No profiles were changed" -Severity Info
     $CanProcessWifiProfiles = $false
 }
 
 if (-not $CanProcessWifiProfiles) {
-    Write-ADTLogEntry -Message 'Prerequisites are not met. Ending deployment with retry exit code 1618.' -Severity Warning
+    Write-ADTLogEntry -Message "Prerequisites are not met. Ending deployment with retry exit code 1618." -Severity Warning
     # Close the PSADT session with the code Intune is configured to retry.
     Close-ADTSession -ExitCode 1618
 }
@@ -77,18 +76,16 @@ if (-not $CanProcessWifiProfiles) {
 # this script can inspect it and choose the deployment result itself.
 foreach ($ProfileName in $ProfilesToForget) {
     try {
-        $NetshResult = Start-ADTProcess -FilePath "$env:SystemRoot\System32\netsh.exe" -ArgumentList @('wlan', 'delete', 'profile', "name=$ProfileName") -IgnoreExitCodes '*' -PassThru
+        $NetshResult = Start-ADTProcess -FilePath "$env:SystemRoot\System32\netsh.exe" -ArgumentList @('wlan', 'delete', 'profile', "name=$ProfileName") -IgnoreExitCodes "*" -PassThru
         $NetshExitCode = $NetshResult.ExitCode
 
         if ($NetshExitCode -eq 0) {
             Write-ADTLogEntry -Message "Removed saved Wi-Fi profile: $ProfileName" -Severity Success
-        }
-        else {
+        } else {
             Write-ADTLogEntry -Message "Could not remove Wi-Fi profile '$ProfileName' (netsh exit code $NetshExitCode). It may not exist or access may be restricted." -Severity Warning
             $HasDeploymentError = $true
         }
-    }
-    catch {
+    } catch {
         Write-ADTLogEntry -Message "Error while removing Wi-Fi profile '$ProfileName': $($_.Exception.Message)" -Severity Error
         $HasDeploymentError = $true
     }
@@ -98,11 +95,10 @@ foreach ($ProfileName in $ProfilesToForget) {
 # Configure detection for the completion DWORD and, optionally, the version string.
 if (-not $HasDeploymentError) {
     try {
-        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name 'Version' -Type 'String' -Value $adtSession.AppVersion -ErrorAction Stop
-        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name 'WifiProfilesCleanupComplete' -Type 'DWord' -Value 1 -ErrorAction Stop
+        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "Version" -Type "String" -Value $adtSession.AppVersion -ErrorAction Stop
+        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "WifiProfilesCleanupComplete" -Type "DWord" -Value 1 -ErrorAction Stop
         Write-ADTLogEntry -Message "Intune detection registry values created under HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup." -Severity Success
-    }
-    catch {
+    } catch {
         Write-ADTLogEntry -Message "Could not create Intune detection registry values: $($_.Exception.Message)" -Severity Error
         $HasDeploymentError = $true
     }
@@ -111,8 +107,7 @@ if (-not $HasDeploymentError) {
 # Return success (0) or failure (1) to the deployment system and close PSADT.
 if ($HasDeploymentError) {
     Close-ADTSession -ExitCode 1
-}
-else {
+} else {
     Close-ADTSession -ExitCode 0
 }
 
