@@ -1,4 +1,4 @@
-## Install
+## Install (PSADT 4.x)
 ```powershell
 ## <Perform Installation tasks here>
 
@@ -115,7 +115,7 @@ if ($HasDeploymentError) {
 
 ```
 
-## Uninstall
+## Uninstall (PSADT 4.x)
 ```powershell
 ## <Perform Uninstallation tasks here>
 
