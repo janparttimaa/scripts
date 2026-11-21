@@ -80,9 +80,9 @@ foreach ($ProfileName in $ProfilesToForget) {
         $NetshExitCode = $NetshResult.ExitCode
 
         if ($NetshExitCode -eq 0) {
-            Write-ADTLogEntry -Message "Removed saved Wi-Fi profile: $ProfileName" -Severity Success
+            Write-ADTLogEntry -Message "Removed saved Wi-Fi profile (if existed): $ProfileName" -Severity Success
         } else {
-            Write-ADTLogEntry -Message "Could not remove Wi-Fi profile '$ProfileName' (netsh exit code $NetshExitCode). It may not exist or access may be restricted." -Severity Warning
+            Write-ADTLogEntry -Message "Could not remove Wi-Fi profile '$ProfileName' (netsh exit code $NetshExitCode)" -Severity Warning
             $HasDeploymentError = $true
         }
     } catch {
