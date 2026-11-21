@@ -13,22 +13,27 @@ $ProfilesToForget = @(
 
 # Setting up other variables
 
+# Company name for the detection method
+$CompanyName = "Contoso"
+
 # Remove blank entries from the list before validating it or looping over it.
 $ProfilesToForget = @($ProfilesToForget | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 
 # The certificate must include the Client Authentication EKU used by EAP-TLS.
 $ClientAuthenticationOid = '1.3.6.1.5.5.7.3.2'
+
 # Use one timestamp for certificate validity checks and the install-age check.
 $Now = Get-Date
+
 # This flag controls whether the script is allowed to make changes.
 $CanProcessWifiProfiles = $true
+
 # Initialize results before running checks so the variables are defined up front.
 $WindowsInstallDate = $null
 $HasWifiClientCertificate = $null
 $NetshResult = $null
 $NetshExitCode = $null
-# Intune can detect successful completion by checking this HKCU key exists.
-$DetectionRegistryPath = 'HKCU:\Software\Contoso'
+
 # Intune should map 1618 to Retry. Use 1 for a processing or detection error.
 $RetryExitCode = 1618
 $FailureExitCode = 1
@@ -98,7 +103,8 @@ foreach ($ProfileName in $ProfilesToForget) {
 # Write the detection key only after every profile removal command succeeded.
 if ($DeploymentExitCode -eq 0) {
     try {
-        Set-ADTRegistryKey -Key $DetectionRegistryPath -ErrorAction Stop
+        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "WifiProfilesCleanupComplete" -Type "DWord" -Value "1"
+        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
         Write-ADTLogEntry -Message "Created Intune detection registry key: $DetectionRegistryPath" -Severity Success
     }
     catch {
