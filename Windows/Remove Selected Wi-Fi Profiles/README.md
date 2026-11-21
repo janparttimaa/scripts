@@ -1,4 +1,5 @@
 ```powershell
+# ====================== USER CONFIGURATION: EDIT THESE VALUES ======================
 # Configure this list with the exact saved Wi-Fi profile names to remove.
 # These are usually the network SSIDs. Keep names in quotes, especially when
 # they contain spaces, and uncomment each entry that should be removed.
@@ -10,6 +11,9 @@ $ProfilesToForget = @(
 )
 # Replace Contoso with your organization's registry key name.
 $CompanyName = 'Contoso'
+# =========================== END USER CONFIGURATION ================================
+
+# =========================== SCRIPT LOGIC: DO NOT EDIT =============================
 
 # Remove blank entries from the list before validating it or looping over it.
 $ProfilesToForget = @($ProfilesToForget | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
@@ -23,13 +27,8 @@ $CanProcessWifiProfiles = $true
 # Initialize results before running checks so the variables are defined up front.
 $WindowsInstallDate = $null
 $HasWifiClientCertificate = $null
-$ConnectedProfiles = @()
-$ConnectedProfile = $null
-$DisconnectResult = $null
-$DisconnectExitCode = $null
 $NetshResult = $null
 $NetshExitCode = $null
-$CanDeleteProfile = $true
 # Intune can detect successful completion by checking the configured HKCU values.
 # Intune should map 1618 to Retry. Use 1 for a processing or detection error.
 $HasDeploymentError = $false
@@ -74,40 +73,19 @@ if (-not $CanProcessWifiProfiles) {
     Close-ADTSession -ExitCode 1618
 }
 
-# Disconnect from a matching active network before removing its saved profile.
-# Get-NetConnectionProfile only reports active connections; its Name is expected
-# to match the configured SSID/profile name. Ignore process exit codes in PSADT
-# so this script can inspect them and choose the deployment result itself.
+# Remove each configured saved profile. Ignore the PSADT process exit code so
+# this script can inspect it and choose the deployment result itself.
 foreach ($ProfileName in $ProfilesToForget) {
-    $CanDeleteProfile = $true
     try {
-        $ConnectedProfiles = @(Get-NetConnectionProfile -Name $ProfileName -ErrorAction Stop)
+        $NetshResult = Start-ADTProcess -FilePath "$env:SystemRoot\System32\netsh.exe" -ArgumentList @('wlan', 'delete', 'profile', "name=$ProfileName") -IgnoreExitCodes '*' -PassThru
+        $NetshExitCode = $NetshResult.ExitCode
 
-        foreach ($ConnectedProfile in $ConnectedProfiles) {
-            $DisconnectResult = Start-ADTProcess -FilePath "$env:SystemRoot\System32\netsh.exe" -ArgumentList @('wlan', 'disconnect', "interface=$($ConnectedProfile.InterfaceAlias)") -IgnoreExitCodes '*' -PassThru
-            $DisconnectExitCode = $DisconnectResult.ExitCode
-
-            if ($DisconnectExitCode -eq 0) {
-                Write-ADTLogEntry -Message "Disconnected from '$ProfileName' on interface '$($ConnectedProfile.InterfaceAlias)'." -Severity Success
-            }
-            else {
-                Write-ADTLogEntry -Message "Could not disconnect from '$ProfileName' on interface '$($ConnectedProfile.InterfaceAlias)' (netsh exit code $DisconnectExitCode). The profile will not be deleted." -Severity Error
-                $CanDeleteProfile = $false
-                $HasDeploymentError = $true
-            }
+        if ($NetshExitCode -eq 0) {
+            Write-ADTLogEntry -Message "Removed saved Wi-Fi profile: $ProfileName" -Severity Success
         }
-
-        if ($CanDeleteProfile) {
-            $NetshResult = Start-ADTProcess -FilePath "$env:SystemRoot\System32\netsh.exe" -ArgumentList @('wlan', 'delete', 'profile', "name=$ProfileName") -IgnoreExitCodes '*' -PassThru
-            $NetshExitCode = $NetshResult.ExitCode
-
-            if ($NetshExitCode -eq 0) {
-                Write-ADTLogEntry -Message "Removed saved Wi-Fi profile: $ProfileName" -Severity Success
-            }
-            else {
-                Write-ADTLogEntry -Message "Could not remove Wi-Fi profile '$ProfileName' (netsh exit code $NetshExitCode). It may not exist or access may be restricted." -Severity Warning
-                $HasDeploymentError = $true
-            }
+        else {
+            Write-ADTLogEntry -Message "Could not remove Wi-Fi profile '$ProfileName' (netsh exit code $NetshExitCode). It may not exist or access may be restricted." -Severity Warning
+            $HasDeploymentError = $true
         }
     }
     catch {
