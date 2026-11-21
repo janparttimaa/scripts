@@ -1,3 +1,4 @@
+## Install
 ```powershell
 # ====================== USER CONFIGURATION: EDIT THESE VALUES ======================
 # Configure this list with the exact saved Wi-Fi profile names to remove.
@@ -96,10 +97,9 @@ foreach ($ProfileName in $ProfilesToForget) {
 if (-not $HasDeploymentError) {
     try {
         Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "Version" -Type "String" -Value $adtSession.AppVersion -ErrorAction Stop
-        Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "WifiProfilesCleanupComplete" -Type "DWord" -Value 1 -ErrorAction Stop
-        Write-ADTLogEntry -Message "Intune detection registry values created under HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup." -Severity Success
+        Write-ADTLogEntry -Message "Intune detection registry value created under HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup." -Severity Success
     } catch {
-        Write-ADTLogEntry -Message "Could not create Intune detection registry values: $($_.Exception.Message)" -Severity Error
+        Write-ADTLogEntry -Message "Could not create Intune detection registry value: $($_.Exception.Message)" -Severity Error
         $HasDeploymentError = $true
     }
 }
@@ -111,4 +111,9 @@ if ($HasDeploymentError) {
     Close-ADTSession -ExitCode 0
 }
 
+```
+
+## Uninstall
+```powershell
+TBA
 ```
