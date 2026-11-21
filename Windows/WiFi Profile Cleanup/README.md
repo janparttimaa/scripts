@@ -1,5 +1,7 @@
 ## Install
 ```powershell
+## <Perform Installation tasks here>
+
 # ====================== USER CONFIGURATION: EDIT THESE VALUES ======================
 # Configure this list with the exact saved Wi-Fi profile names to remove.
 # These are usually the network SSIDs. Keep names in quotes, especially when
@@ -115,5 +117,8 @@ if ($HasDeploymentError) {
 
 ## Uninstall
 ```powershell
-TBA
+## <Perform Uninstallation tasks here>
+
+# Informing that uninstallation is not required
+Write-ADTLogEntry -Message "No uninstall required" -Source 'Info'
 ```
