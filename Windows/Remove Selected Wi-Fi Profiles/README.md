@@ -105,10 +105,10 @@ if ($DeploymentExitCode -eq 0) {
     try {
         Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "WifiProfilesCleanupComplete" -Type "DWord" -Value "1"
         Set-ADTRegistryKey -LiteralPath "HKEY_CURRENT_USER\SOFTWARE\$CompanyName\WiFiProfileCleanup" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
-        Write-ADTLogEntry -Message "Created Intune detection registry key: $DetectionRegistryPath" -Severity Success
+        Write-ADTLogEntry -Message "Intune detection registry keys created." -Severity Success
     }
     catch {
-        Write-ADTLogEntry -Message "Could not create Intune detection registry key '$DetectionRegistryPath': $($_.Exception.Message)" -Severity Error
+        Write-ADTLogEntry -Message "Could not create Intune detection registry keys: $($_.Exception.Message)" -Severity Error
         $DeploymentExitCode = $FailureExitCode
     }
 }
