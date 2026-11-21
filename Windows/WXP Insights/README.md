@@ -13,9 +13,6 @@
 ```powershell
     ## <Perform Pre-Installation tasks here>
 
-    # Variable: Define Company PIN
-    $CompanyPIN = "<COMPANY PIN CODE>"
-
     # Checking if device manufacturer is HP or Hewlett-Packard. If not, we will inform this and cancel the installation. 
     # This is because WXP Insight is only for HP-devices. 
     # If device manufacturer is HP or Hewlett-Packard, we can proceed.
@@ -127,6 +124,9 @@
 ### Install
 ```powershell
     ## <Perform Installation tasks here>
+
+    # Variable: Define Company PIN
+    $CompanyPIN = "<COMPANY PIN CODE>"
 
     # Installation command for WXP Insight Analytics - Dependencies
     Start-ADTMsiProcess -Action "Install" -FilePath "WXPInsightsAnalyticsDependencies.msi" -ArgumentList "/quiet /norestart"
