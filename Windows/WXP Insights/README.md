@@ -9,7 +9,41 @@
 
 ## PSAppDeployToolkit (PSADT)
 
+### Variables (Example)
+```powershell
+##================================================
+## MARK: Variables
+##================================================
+
+# Zero-Config MSI support is provided when "AppName" is null or empty.
+# By setting the "AppName" property, Zero-Config MSI will be disabled.
+$adtSession = @{
+    # App variables.
+    AppVendor = 'HP Inc.'
+    AppName = 'WXP Insights'
+    AppVersion = '5.26.150'
+    AppArch = 'x86'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @('HPTouchpointManagerTray')  # Example: @('excel', @{ Name = 'winword'; Description = 'Microsoft Word' })
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '2026-11-23'
+    AppScriptAuthor = 'Jan Parttimaa'
+    RequireAdmin = $true
+
+    # Install Titles (Only set here to override defaults set by the toolkit).
+    InstallName = ''
+    InstallTitle = 'WXP Insights'
+
+```
+
+
 ### Pre-Installation
+
+The following setting has been configured in the pre-install phase to prevent users from deferring installation or uninstallation: ```DeferTimes = 0```.
+
 ```powershell
     ## <Perform Pre-Installation tasks here>
 
@@ -86,7 +120,7 @@
     }
 
     # Uninstallation of previous installation of WXP Insights, WXP Insights Analytics and WXP Insights Analytics - Dependencies
-    Write-ADTLogEntry -Message "Uninstallation process of previous 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' application installations started..." -Source "Info"
+    Write-ADTLogEntry -Message "Uninstallation process of previous 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' applications started..." -Source "Info"
 
     # Reset the consent to unknown
     Write-ADTLogEntry -Message "Resetting Consent to unknown..." -Source "Info"
@@ -256,7 +290,7 @@
     ## <Perform Uninstallation tasks here>
 
     # Uninstallation of WXP Insights, WXP Insights Analytics and WXP Insights Analytics - Dependencies
-    Write-ADTLogEntry -Message "Uninstallation process of 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' applications installation started..." -Source "Info"
+    Write-ADTLogEntry -Message "Uninstallation process of 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' applications started..." -Source "Info"
 
     # Reset the consent to unknown
     Write-ADTLogEntry -Message "Resetting Consent to unknown..." -Source "Info"
@@ -338,7 +372,7 @@
     Remove-ADTFolder -Path "$envProgramFilesX86\HP\HP Touchpoint Analytics Client"
 ```
 
-## Post-Uninstall
+### Post-Uninstall
 ```powershell
     ## <Perform Post-Uninstallation tasks here>
 
