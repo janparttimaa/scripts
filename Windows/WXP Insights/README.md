@@ -57,7 +57,7 @@
     }
 
     # Checking if prerequired application is installed (1/2): Microsoft Visual C++ 2015-2022 Redistributable (x86).
-    # If not, it will be installed. Otherwise, we don't need to install anything before installing WXP Insights.
+    # If not, it will be installed. Otherwise, we don't need to install anything before installing WXP Insights Agent.
     Write-ADTLogEntry -Message "Checking does device have following prerequisite application installed (1/2): Microsoft Visual C++ 2015-2022 Redistributable (x86)" -Source "Info"
 
     $VCRedistx86 = Get-ADTApplication -Name "Microsoft Visual C++ 2015-2022 Redistributable (x86)" -NameMatch "Contains"
@@ -70,7 +70,7 @@
     }
 
     # Checking if prerequired application is installed (2/2): Microsoft Visual C++ 2015-2022 Redistributable (x64).
-    # If not, it will be installed. Otherwise, we don't need to install anything before installing WXP Insights.
+    # If not, it will be installed. Otherwise, we don't need to install anything before installing WXP Insights Agent.
     Write-ADTLogEntry -Message "Checking does device have following prerequisite application installed (2/2): Microsoft Visual C++ 2015-2022 Redistributable (x64)" -Source "Info"
 
     $VCRedistx64 = Get-ADTApplication -Name "Microsoft Visual C++ 2015-2022 Redistributable (x64)" -NameMatch "Contains"
@@ -83,33 +83,63 @@
     }
 
     # Uninstallation of previous installation of WXP Insights, WXP Insights Analytics and WXP Insights Analytics - Dependencies
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Uninstallation process of previous 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' application installations started..." -Source "Info"
+    Write-ADTLogEntry -Message "Uninstallation process of previous 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' application installations started..." -Source "Info"
 
     # Reset the consent to unknown
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Resetting Consent to unknown..." -Source "Info"
+    Write-ADTLogEntry -Message "Resetting Consent to unknown..." -Source "Info"
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowMarketing" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowNecessary" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowProductEnhancement" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowSupport" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AnyConsentWasAccepted" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowTransferOutOfCountry" -Value "Unknown" -Type String
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Consent has set to unknown." -Source "Info"
+    Write-ADTLogEntry -Message "Consent has set to unknown." -Source "Info"
 
     # Disable the services
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabling HP Service Scan Service..." -Source "Info"
-    Stop-ADTServiceAndDependencies -Name "hpsvcsscan"
-    Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Disabled"
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabled HP Service Scan Service." -Source "Info"
+    if (Get-Service -Name "hpsvcsscan" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Service 'hpsvcsscan' exists. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling HP Service Scan Service..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hpsvcsscan"
+        Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabled HP Service Scan Service." -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Service 'hpsvcsscan' does not exist. Proceeding..." -Source "Info"
+    }
 
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabling hptpsmarthealthservice..." -Source "Info"
-    Stop-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
-    Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Disabled"
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabled hptpsmarthealthservice." -Source "Info"
+    if (Get-Service -Name "hptpsmarthealthservice" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Service 'hptpsmarthealthservice' exists. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling hptpsmarthealthservice..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
+        Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Disabled hptpsmarthealthservice." -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Service 'hptpsmarthealthservice' does not exist. Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hpLHAgent" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Service 'hpLHAgent' exists. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling hpLHAgent..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hpLHAgent"
+        Set-ADTServiceStartMode -Service "hpLHAgent" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Disabled hpLHAgent." -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Service 'hpLHAgent' does not exist. Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hpLHWatchdog" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Service 'hpLHWatchdog' exists. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling hpLHWatchdog..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hpLHWatchdog"
+        Set-ADTServiceStartMode -Service "hpLHWatchdog" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Disabled hpLHWatchdog." -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Service 'hpLHWatchdog' does not exist. Proceeding..." -Source "Info"
+    }
 
     # Uninstall the applications
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Uninstalling the applications..." -Source "Info"
-    Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
-    Uninstall-ADTApplication -Name "WXP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    Write-ADTLogEntry -Message "Uninstalling the applications..." -Source "Info"
+    #Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
+    Uninstall-ADTApplication -Name "WXP Insights Agent" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
@@ -117,7 +147,7 @@
     Uninstall-ADTApplication -Name "HP Insights Analytics - Dependencies" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
 
     # Remove the folders
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Removing the folders..." -Source "Info"
+    Write-ADTLogEntry -Message "Removing the folders..." -Source "Info"
     Remove-ADTFolder -Path "$envProgramFilesX86\Hewlett-Packard\HP Touchpoint Manager"
     Remove-ADTFolder -Path "$envProgramFiles\HP\HP Touchpoint Analytics Client"
     Remove-ADTFolder -Path "$envProgramFilesX86\HP\HP Touchpoint Analytics Client"
@@ -146,31 +176,31 @@
     ## <Perform Uninstallation tasks here>
 
     # Uninstallation of WXP Insights, WXP Insights Analytics and WXP Insights Analytics - Dependencies
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Uninstallation process of 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' applications installation started..." -Source "Info"
+    Write-ADTLogEntry -Message "Uninstallation process of 'WXP Insights', 'WXP Insights Analytics Client' and 'WXP Insights Analytics - Dependencies' applications installation started..." -Source "Info"
 
     # Reset the consent to unknown
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Resetting Consent to unknown..." -Source "Info"
+    Write-ADTLogEntry -Message "Resetting Consent to unknown..." -Source "Info"
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowMarketing" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowNecessary" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowProductEnhancement" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowSupport" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AnyConsentWasAccepted" -Value "Unknown" -Type String
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowTransferOutOfCountry" -Value "Unknown" -Type String
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Consent has set to unknown." -Source "Info"
+    Write-ADTLogEntry -Message "Consent has set to unknown." -Source "Info"
 
     # Disable the services
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabling HP Service Scan Service..." -Source "Info"
+    Write-ADTLogEntry -Message "Disabling HP Service Scan Service..." -Source "Info"
     Stop-ADTServiceAndDependencies -Name "hpsvcsscan"
     Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Disabled"
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabled HP Service Scan Service." -Source "Info"
+    Write-ADTLogEntry -Message "Disabled HP Service Scan Service." -Source "Info"
 
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabling hptpsmarthealthservice..." -Source "Info"
+    Write-ADTLogEntry -Message "Disabling hptpsmarthealthservice..." -Source "Info"
     Stop-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
     Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Disabled"
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabled hptpsmarthealthservice." -Source "Info"
+    Write-ADTLogEntry -Message "Disabled hptpsmarthealthservice." -Source "Info"
 
     # Uninstall the applications
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Uninstalling the applications..." -Source "Info"
+    Write-ADTLogEntry -Message "Uninstalling the applications..." -Source "Info"
     Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
     Uninstall-ADTApplication -Name "WXP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
@@ -180,7 +210,7 @@
     Uninstall-ADTApplication -Name "HP Insights Analytics - Dependencies" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
 
     # Remove the folders
-    Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Removing the folders..." -Source "Info"
+    Write-ADTLogEntry -Message "Removing the folders..." -Source "Info"
     Remove-ADTFolder -Path "$envProgramFilesX86\Hewlett-Packard\HP Touchpoint Manager"
     Remove-ADTFolder -Path "$envProgramFiles\HP\HP Touchpoint Analytics Client"
     Remove-ADTFolder -Path "$envProgramFilesX86\HP\HP Touchpoint Analytics Client"
