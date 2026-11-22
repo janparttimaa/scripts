@@ -13,6 +13,9 @@
 ```powershell
     ## <Perform Pre-Installation tasks here>
 
+    # Setting variable
+    $Company = "Contoso"
+    
     # Checking if device manufacturer is HP or Hewlett-Packard. If not, we will inform this and cancel the installation. 
     # This is because WXP Insight is only for HP-devices. 
     # If device manufacturer is HP or Hewlett-Packard, we can proceed.
@@ -95,45 +98,57 @@
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowTransferOutOfCountry" -Value "Unknown" -Type String
     Write-ADTLogEntry -Message "Consent has set to unknown." -Source "Info"
 
-    # Disable the services
+    # Disabling HP services
+    Write-ADTLogEntry -Message "Disabling HP Services..." -Source "Info"
+
     if (Get-Service -Name "hpsvcsscan" -ErrorAction SilentlyContinue) {
-        Write-ADTLogEntry -Message "Service 'hpsvcsscan' exists. Proceeding..." -Source "Info"
-        Write-ADTLogEntry -Message "Disabling HP Service Scan Service..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service exist: HP Services Scan (hpsvcsscan). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: HP Services Scan (hpsvcsscan)..." -Source "Info"
         Stop-ADTServiceAndDependencies -Name "hpsvcsscan"
         Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Disabled"
-        Write-ADTLogEntry -Message "[WXP Insights Uninstallation] Disabled HP Service Scan Service." -Source "Info"
+        Write-ADTLogEntry -Message "Service disabled: HP Services Scan (hpsvcsscan)" -Source "Info"
     } else {
-        Write-ADTLogEntry -Message "Service 'hpsvcsscan' does not exist. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service does not exist: HP Services Scan (hpsvcsscan). Proceeding..." -Source "Info"
     }
 
     if (Get-Service -Name "hptpsmarthealthservice" -ErrorAction SilentlyContinue) {
-        Write-ADTLogEntry -Message "Service 'hptpsmarthealthservice' exists. Proceeding..." -Source "Info"
-        Write-ADTLogEntry -Message "Disabling hptpsmarthealthservice..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service exist: 'hptpsmarthealthservice'. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: 'hptpsmarthealthservice'..." -Source "Info"
         Stop-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
         Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Disabled"
-        Write-ADTLogEntry -Message "Disabled hptpsmarthealthservice." -Source "Info"
+        Write-ADTLogEntry -Message "Service disabled: 'hptpsmarthealthservice'" -Source "Info"
     } else {
-        Write-ADTLogEntry -Message "Service 'hptpsmarthealthservice' does not exist. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service does not exist:  'hptpsmarthealthservice'. Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "HpTouchpointAnalyticsService" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights Analytics (HpTouchpointAnalyticsService). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: WXP Insights Analytics (HpTouchpointAnalyticsService)..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "HpTouchpointAnalyticsService"
+        Set-ADTServiceStartMode -Service "HpTouchpointAnalyticsService" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Service disabled: WXP Insights Analytics (HpTouchpointAnalyticsService)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights Analytics (HpTouchpointAnalyticsService). Proceeding..." -Source "Info"
     }
 
     if (Get-Service -Name "hpLHAgent" -ErrorAction SilentlyContinue) {
-        Write-ADTLogEntry -Message "Service 'hpLHAgent' exists. Proceeding..." -Source "Info"
-        Write-ADTLogEntry -Message "Disabling hpLHAgent..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights Agent (hpLHAgent). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: WXP Insights Agent (hpLHAgent)..." -Source "Info"
         Stop-ADTServiceAndDependencies -Name "hpLHAgent"
         Set-ADTServiceStartMode -Service "hpLHAgent" -StartMode "Disabled"
-        Write-ADTLogEntry -Message "Disabled hpLHAgent." -Source "Info"
+        Write-ADTLogEntry -Message "Service disabled: WXP Insights Agent (hpLHAgent)" -Source "Info"
     } else {
-        Write-ADTLogEntry -Message "Service 'hpLHAgent' does not exist. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights Agent (hpLHAgent). Proceeding..." -Source "Info"
     }
 
     if (Get-Service -Name "hpLHWatchdog" -ErrorAction SilentlyContinue) {
-        Write-ADTLogEntry -Message "Service 'hpLHWatchdog' exists. Proceeding..." -Source "Info"
-        Write-ADTLogEntry -Message "Disabling hpLHWatchdog..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights WatchDog Service (hpLHWatchdog). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: WXP Insights WatchDog Service (hpLHWatchdog)..." -Source "Info"
         Stop-ADTServiceAndDependencies -Name "hpLHWatchdog"
         Set-ADTServiceStartMode -Service "hpLHWatchdog" -StartMode "Disabled"
-        Write-ADTLogEntry -Message "Disabled hpLHWatchdog." -Source "Info"
+        Write-ADTLogEntry -Message "Service disabled: WXP Insights WatchDog Service (hpLHWatchdog)" -Source "Info"
     } else {
-        Write-ADTLogEntry -Message "Service 'hpLHWatchdog' does not exist. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights WatchDog Service (hpLHWatchdog). Proceeding..." -Source "Info"
     }
 
     # Uninstall the applications
@@ -171,6 +186,71 @@
     Start-ADTMsiProcess -Action "Install" -FilePath "WXPInsights.msi" -ArgumentList "CPIN=$CompanyPIN HIDETRAY=True /quiet /norestart"
 ```
 
+### Post-Install
+```powershell
+    ## <Perform Post-Installation tasks here>
+
+    # Variable: Define Company Name
+    $Company = "Contoso"
+
+    # Enabling HP Services back
+    Write-ADTLogEntry -Message "Enabling HP Services back..." -Source "Info"
+
+    if (Get-Service -Name "hpsvcsscan" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: HP Services Scan (hpsvcsscan). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Enabling service: HP Services Scan (hpsvcsscan)..." -Source "Info"
+        Start-ADTServiceAndDependencies -Name "hpsvcsscan"
+        Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Automatic"
+        Write-ADTLogEntry -Message "Following service set as 'Automatic': HP Services Scan (hpsvcsscan)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: HP Services Scan (hpsvcsscan). Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hptpsmarthealthservice" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: 'hptpsmarthealthservice'. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Enabling service: 'hptpsmarthealthservice'..." -Source "Info"
+        Start-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
+        Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Automatic"
+        Write-ADTLogEntry -Message "Following service set as 'Automatic': 'hptpsmarthealthservice'" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist:  'hptpsmarthealthservice'. Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "HpTouchpointAnalyticsService" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights Analytics (HpTouchpointAnalyticsService). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Enabling service: WXP Insights Analytics (HpTouchpointAnalyticsService)..." -Source "Info"
+        Start-ADTServiceAndDependencies -Name "HpTouchpointAnalyticsService"
+        Set-ADTServiceStartMode -Service "HpTouchpointAnalyticsService" -StartMode "Automatic"
+        Write-ADTLogEntry -Message "Following service set as 'Automatic': WXP Insights Analytics (HpTouchpointAnalyticsService)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights Analytics (HpTouchpointAnalyticsService). Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hpLHAgent" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights Agent (hpLHAgent). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Enabling service: WXP Insights Agent (hpLHAgent)..." -Source "Info"
+        Start-ADTServiceAndDependencies -Name "hpLHAgent"
+        Set-ADTServiceStartMode -Service "hpLHAgent" -StartMode "Automatic (Delayed Start)"
+        Write-ADTLogEntry -Message "Following service set as 'Automatic': WXP Insights Agent (hpLHAgent)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights Agent (hpLHAgent). Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hpLHWatchdog" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights WatchDog Service (hpLHWatchdog). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Enabling service: WXP Insights WatchDog Service (hpLHWatchdog)..." -Source "Info"
+        Start-ADTServiceAndDependencies -Name "hpLHWatchdog"
+        Set-ADTServiceStartMode -Service "hpLHWatchdog" -StartMode "Automatic (Delayed Start)"
+        Write-ADTLogEntry -Message "Following service set as 'Automatic': WXP Insights WatchDog Service (hpLHWatchdog)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights WatchDog Service (hpLHWatchdog). Proceeding..." -Source "Info"
+    }
+
+    Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
+    Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$Company\WXP" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
+
+```
+
 ### Uninstall
 ```powershell
     ## <Perform Uninstallation tasks here>
@@ -188,21 +268,63 @@
     Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\HP\Consent" -Name "AllowTransferOutOfCountry" -Value "Unknown" -Type String
     Write-ADTLogEntry -Message "Consent has set to unknown." -Source "Info"
 
-    # Disable the services
-    Write-ADTLogEntry -Message "Disabling HP Service Scan Service..." -Source "Info"
-    Stop-ADTServiceAndDependencies -Name "hpsvcsscan"
-    Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Disabled"
-    Write-ADTLogEntry -Message "Disabled HP Service Scan Service." -Source "Info"
+    # Disabling HP services
+    Write-ADTLogEntry -Message "Disabling HP Services..." -Source "Info"
 
-    Write-ADTLogEntry -Message "Disabling hptpsmarthealthservice..." -Source "Info"
-    Stop-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
-    Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Disabled"
-    Write-ADTLogEntry -Message "Disabled hptpsmarthealthservice." -Source "Info"
+    if (Get-Service -Name "hpsvcsscan" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: HP Services Scan (hpsvcsscan). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: HP Services Scan (hpsvcsscan)..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hpsvcsscan"
+        Set-ADTServiceStartMode -Service "hpsvcsscan" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Service disabled: HP Services Scan (hpsvcsscan)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: HP Services Scan (hpsvcsscan). Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hptpsmarthealthservice" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: 'hptpsmarthealthservice'. Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: 'hptpsmarthealthservice'..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hptpsmarthealthservice"
+        Set-ADTServiceStartMode -Service "hptpsmarthealthservice" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Service disabled: 'hptpsmarthealthservice'" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist:  'hptpsmarthealthservice'. Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "HpTouchpointAnalyticsService" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights Analytics (HpTouchpointAnalyticsService). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: WXP Insights Analytics (HpTouchpointAnalyticsService)..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "HpTouchpointAnalyticsService"
+        Set-ADTServiceStartMode -Service "HpTouchpointAnalyticsService" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Service disabled: WXP Insights Analytics (HpTouchpointAnalyticsService)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights Analytics (HpTouchpointAnalyticsService). Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hpLHAgent" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights Agent (hpLHAgent). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: WXP Insights Agent (hpLHAgent)..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hpLHAgent"
+        Set-ADTServiceStartMode -Service "hpLHAgent" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Service disabled: WXP Insights Agent (hpLHAgent)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights Agent (hpLHAgent). Proceeding..." -Source "Info"
+    }
+
+    if (Get-Service -Name "hpLHWatchdog" -ErrorAction SilentlyContinue) {
+        Write-ADTLogEntry -Message "Following service exist: WXP Insights WatchDog Service (hpLHWatchdog). Proceeding..." -Source "Info"
+        Write-ADTLogEntry -Message "Disabling service: WXP Insights WatchDog Service (hpLHWatchdog)..." -Source "Info"
+        Stop-ADTServiceAndDependencies -Name "hpLHWatchdog"
+        Set-ADTServiceStartMode -Service "hpLHWatchdog" -StartMode "Disabled"
+        Write-ADTLogEntry -Message "Service disabled: WXP Insights WatchDog Service (hpLHWatchdog)" -Source "Info"
+    } else {
+        Write-ADTLogEntry -Message "Following service does not exist: WXP Insights WatchDog Service (hpLHWatchdog). Proceeding..." -Source "Info"
+    }
 
     # Uninstall the applications
     Write-ADTLogEntry -Message "Uninstalling the applications..." -Source "Info"
-    Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
-    Uninstall-ADTApplication -Name "WXP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
+    #Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
+    Uninstall-ADTApplication -Name "WXP Insights Agent" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
@@ -214,4 +336,17 @@
     Remove-ADTFolder -Path "$envProgramFilesX86\Hewlett-Packard\HP Touchpoint Manager"
     Remove-ADTFolder -Path "$envProgramFiles\HP\HP Touchpoint Analytics Client"
     Remove-ADTFolder -Path "$envProgramFilesX86\HP\HP Touchpoint Analytics Client"
+```
+
+## Post-Uninstall
+```powershell
+    ## <Perform Post-Uninstallation tasks here>
+
+    # Variable: Define Company Name
+    $Company = "Contoso"
+
+    # Removing the registry key used by Intune or Configuration Manager detection rules...
+    Write-ADTLogEntry -Message "Removing the registry key used by Intune or Configuration Manager detection rules..." -Source "Info"
+    Remove-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\$Company\WXP"
+
 ```

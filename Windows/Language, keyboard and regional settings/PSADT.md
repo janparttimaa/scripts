@@ -48,15 +48,11 @@ Set-WinHomeLocation -GeoId $GeoID
 Write-ADTLogEntry -Message "Copying international settings to system and new users..." -Source "Info"
 Copy-UserInternationalSettingsToSystem -WelcomeScreen $true -NewUser $true
 
-# 9. Apply settings to the current user
-Write-ADTLogEntry -Message "Applying international settings to the current user..." -Source "Info"
-Start-ADTProcessAsUser -FilePath "$envSystemRoot\system32\WindowsPowerShell\v1.0\powershell.exe" -ArgumentList "-ExecutionPolicy Bypass -File $($adtSession.DirSupportFiles)\Set-LanguageKeyboardAndRegionalSettings-NonAdmin.ps1" -WindowStyle Hidden -CreateNoWindow
-
-# 10. Mark the configuration as completed
+# 9. Mark the configuration as completed
 Write-ADTLogEntry -Message "Creating registry key for Intune or Configuration Manager detection rule purposes..." -Source "Info"
 Set-ADTRegistryKey -LiteralPath "HKEY_LOCAL_MACHINE\SOFTWARE\Contoso\Fix-LangKbdRegion" -Name "Version" -Type "String" -Value $($adtSession.AppVersion)
 
-# 11. Completion
+# 10. Completion
 Write-ADTLogEntry -Message "The changes have been made and will take effect after a reboot." -Source "Info"
 ```
 
