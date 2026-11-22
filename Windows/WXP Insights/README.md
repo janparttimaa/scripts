@@ -10,6 +10,7 @@
 ## PSAppDeployToolkit (PSADT)
 
 ### Variables (Example)
+
 ```powershell
 ##================================================
 ## MARK: Variables
@@ -38,7 +39,6 @@ $adtSession = @{
     InstallTitle = 'WXP Insights'
 
 ```
-
 
 ### Pre-Installation
 
@@ -187,7 +187,6 @@ The following setting has been configured in the pre-install phase to prevent us
 
     # Uninstall the applications
     Write-ADTLogEntry -Message "Uninstalling the applications..." -Source "Info"
-    #Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
     Uninstall-ADTApplication -Name "WXP Insights Agent" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
@@ -357,7 +356,6 @@ The following setting has been configured in the pre-install phase to prevent us
 
     # Uninstall the applications
     Write-ADTLogEntry -Message "Uninstalling the applications..." -Source "Info"
-    #Stop-ADTServiceAndDependencies -Name "HPTouchpointManagerTray"
     Uninstall-ADTApplication -Name "WXP Insights Agent" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "HP Insights" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
     Uninstall-ADTApplication -Name "WXP Insights Analytics" -NameMatch "Exact" -FilterScript { $_.Publisher -match "HP Inc." } -IgnoreExitCodes "*"
