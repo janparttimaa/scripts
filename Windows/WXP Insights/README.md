@@ -28,7 +28,7 @@ $adtSession = @{
     AppRevision = '01'
     AppSuccessExitCodes = @(0)
     AppRebootExitCodes = @(1641, 3010)
-    AppProcessesToClose = @('HPTouchpointManagerTray')  # Example: @('excel', @{ Name = 'winword'; Description = 'Microsoft Word' })
+    AppProcessesToClose = @('HPTouchpointManagerTray', 'TouchpointAnalyticsClientService', 'hpsvcsscan', 'LHAgent', 'CoreProvider', 'SoftwarePackageManager')  # Example: @('excel', @{ Name = 'winword'; Description = 'Microsoft Word' })
     AppScriptVersion = '1.0.0'
     AppScriptDate = '2026-11-23'
     AppScriptAuthor = 'Jan Parttimaa'
